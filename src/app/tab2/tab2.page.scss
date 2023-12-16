@@ -1,0 +1,48 @@
+/* Style charts */
+.header {
+    --background: #FFFFFF; /* White background for header */
+  }
+  
+  .content-container {
+    background: linear-gradient(to bottom, #4a4a50, #151517); /* Gradient blue background */
+    height: 90vh;
+  }
+  
+  .content {
+    --background: transparent; /* Transparent background for ion-content */
+  }
+  
+  
+
+  /* Card holders for charts */
+  ion-card {
+    --background: #181515;
+    --color: #9efff0;
+}
+
+ion-card-title {
+    --color: #52ffe4;
+}
+
+ion-card-subtitle {
+    --color: #d1fff8;
+}
+
+/*  div is introduced to contain the chart components. 
+This div is styled to display the components in a column layout, 
+center align them, and add a margin around them. */
+
+.chart-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+}
+
+.chart-component{
+    background-color: #353434;
+    border-radius: 10px;
+    width: 80%; /* Adjust the width as desired */
+    max-width: 600px; /* Optional: Set a maximum width for the chart components */
+    margin-bottom: 20px; /* Optional: Add some spacing between the chart components */
+}

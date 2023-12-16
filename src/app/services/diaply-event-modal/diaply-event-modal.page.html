@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click) = "closeModal()">
+        Close
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{event.title}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="card">
+    <div class="header">
+      <div class="avatar">
+        <img src="{{imagePathway}}">
+      </div>
+    </div>
+  </div>
+  <ion-button expand="full" color="primary">{{event.description}}</ion-button>
+
+  <ion-item>
+    <ion-text><b>Hours: </b>{{event.hours}}</ion-text>
+  </ion-item>
+  <ion-item>
+    <ion-text><b>Date Started: </b>{{event.startdate}}</ion-text>
+  </ion-item>
+  <ion-item>
+    <ion-text><b>End Date: </b>{{event.endDate}}</ion-text>
+  </ion-item>
+  <ion-item>
+    <ion-text><b>Organiser: </b>{{event.eventOrganisers}}</ion-text>
+  </ion-item>
+  <ion-item>
+    <ion-text><b>Points: </b>{{event.CPDPoints}}</ion-text>
+  </ion-item>
+  <ion-item>
+    <ion-text><b>Category: </b>{{event.compentancyCat}}</ion-text>
+  </ion-item>
+  <ion-item>
+    <ion-text><b>Reflective Notes: </b>{{event.reflection}}</ion-text>
+  </ion-item>
+  <ion-item>
+    <ion-text><b>Plan: </b>{{event.learningPlan}}</ion-text>
+  </ion-item>
+
+  <!-- If we have an image form database as base64 string then display, if not then use default-->
+  <ion-item *ngIf="event.certificate">
+    <img [src]="'data:image/jpeg;base64,' + event.certificate" alt ="Certifcate Image">
+  </ion-item>
+  <ion-item *ngIf="!event.certificate">
+    <img src="assets/defaultPhoto.png" class="bordered-image">
+  </ion-item>
+
+  
+  <ion-button 
+    expand="full"
+    color="primary"
+    (click) = "closeModal()"
+    >Close</ion-button>
+
+</ion-content>

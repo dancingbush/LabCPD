@@ -1,0 +1,173 @@
+<!-- New and Edit event form-->
+
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="closeModal()">
+        Close
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{editEvent ? 'Edit' : 'New Event'}} CPD Event</ion-title>
+   
+  </ion-toolbar>
+</ion-header>
+
+
+
+<ion-content class="ion-padding">
+  <form #f = "ngForm" (ngSubmit)="onSubmit(f)">
+    <ion-item>
+      <ion-label position = "floating">Title</ion-label>
+      <ion-input autofocus= true autocorrect="on" required clear-input=true [(ngModel)] = "uploadEvent.title" name = "title"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Description </ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.description" name = "description"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Event Organisers</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.eventOrganisers" name = "eventOrganisers"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">CPD Points</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.CPDPoints" name = "CPDPoints"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Categotory</ion-label>
+      <!--<ion-input required=true [(ngModel)]="uploadEvent.compentancyCat" name = "compentancyCat"></ion-input>-->
+      <ion-select [(ngModel)]="uploadEvent.compentancyCat" placeholder="CPD" interface="action-sheet" [multiple]="true">
+        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
+        <ion-select-option value="Research">Research</ion-select-option>
+        <ion-select-option value="Paper">Masters</ion-select-option>
+        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
+        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
+        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
+        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
+
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Reflective Notes</ion-label>
+      <!--<ion-input required=true [(ngModel)]="uploadEvent.reflection" name = "reflection"></ion-input>-->
+      <ion-textarea maxlength="2000"   [(ngModel)]="uploadEvent.reflection" autocapitalize="sentences" errorText="check" helperText="Looks good!" required="true"  rows="1" spellcheck="true" placeholder="Thinking about follwing criteria: " autoGrow="true"  [counter]="true"></ion-textarea>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Learning Plan</ion-label>
+      <!--<ion-input required=true [(ngModel)]="uploadEvent.learningPlan" name = "learningPlan"></ion-input>-->
+      <ion-textarea maxlength="2000"   [(ngModel)]="uploadEvent.learningPlan" autocapitalize="sentences" errorText="check" helperText="Looks good!" required="true"  rows="1" spellcheck="true" placeholder="Think about A B C...." autoGrow="true"  [counter]="true"></ion-textarea>
+    </ion-item>
+    
+
+    <!--Hours, start and end dates-->
+    <ion-item>
+      <ion-label position = "floating">Hours</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.hours" name = "hours"></ion-input>
+    </ion-item>
+    
+    <ion-list>
+      <ion-accordion-group >
+        <ion-accordion #myAccordion value="start">
+          <ion-item slot="header">
+            <ion-label>Start Date</ion-label>
+            <ion-note slot="end" id="datetimeValue">{{selectedDate | date: 'dd/MM/yyyy'}}</ion-note>
+          </ion-item>
+          <ion-datetime
+            id="datetime"
+            displayFormat="dd/MM/yyyy"
+            slot="content"
+            presentation="date"
+            min="01-01-1980"
+            max="31-01-2100"
+            
+            [(ngModel)]="selectedDate"
+            name="selectedDate"
+           
+          ></ion-datetime>
+        </ion-accordion>
+      </ion-accordion-group>
+    </ion-list>
+    
+    <ion-item-divider></ion-item-divider>
+      <!--<ion-input required=true [(ngModel)]="uploadEvent.startdate" name = "startdate"></ion-input>-->
+    
+    <!--End Date Pciker-->
+    <ion-list >
+      <ion-accordion-group >
+        <ion-accordion #myAccordion value="start">
+          <ion-item slot="header">
+            <ion-label >End Date</ion-label>
+            <ion-note slot="end" id="datetimeValue">{{selectedEndDate | date: 'dd/MM/yyyy'}}</ion-note>
+          </ion-item>
+          <ion-datetime
+            id="datetime"
+            displayFormat="dd/MM/yyyy"
+            slot="content"
+            presentation="date"
+            min="01-01-1980"
+            max="31-01-2100"
+            
+            [(ngModel)]="selectedEndDate"
+            name="selectedEndDate"
+           
+          ></ion-datetime>
+        </ion-accordion>
+      </ion-accordion-group>
+    </ion-list>
+
+    <ion-item-divider></ion-item-divider>
+
+
+
+<!-- Button for Capturing Photo -->
+<div class="center">
+  <ion-button class="custom-button" (click)="takeAndDisplayPhoto()">
+    <ion-icon slot="start" name="camera"></ion-icon> Capture Certificate Photo
+  </ion-button>
+
+  <!-- Place a grid where the image can be viewed once a photo is taken -->
+  <ion-col size="6">
+    <ion-img [src]="base64photo ? 'data:image/jpeg;base64,' + base64photo : 'assets/defaultPhoto.png'" class="bordered-image"></ion-img>
+    <!--
+    <ion-img [src]="photoFileLocation ? photoFileLocation : 'assets/defaultPhoto.png'" class="bordered-image"></ion-img>
+    -->
+  </ion-col>
+</div>
+
+
+<!--ion-fab not working a button floatong over opther fields-->
+<ion-item-divider></ion-item-divider>
+
+<!-- <ion-content style="margin-top: 20px; margin-bottom: 20px">
+<ion-fab vertical="center" horizontal="center" slot="fixed">get cert 
+  <ion-fab-button (click)="getCertficatePhoto()">
+    <ion-icon name="camera"></ion-icon>
+  </ion-fab-button>
+</ion-fab> -->
+
+
+
+
+<!--
+<ion-input required=true [(ngModel)]="uploadEvent.certificate" name = "certificate"></ion-input>
+
+-->
+<!--Update Button-->
+<div class="center">
+    <ion-button shape="round" style="margin-top: 20px;" type="submit" [ngClass]="{greenClass: !editEvent, lightClass: editEvent}">
+    <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+    {{editEvent ? 'Update' : 'ADD'}}
+  </ion-button>
+  </div>
+</form>
+
+
+      <!-- <ion-content style="margin-top: 20px; margin-bottom: 20px">
+        <ion-fab vertical="center" horizontal="center" slot="fixed">get cert 
+          <ion-fab-button (click)="getCertficatePhoto()">
+            <ion-icon name="camera"></ion-icon>
+          </ion-fab-button>
+        </ion-fab>
+        </ion-content> -->
+
+  </ion-content>
+  

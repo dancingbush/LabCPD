@@ -1,0 +1,66 @@
+<!-- New and Edit event form-->
+
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button color="danger" (click)="closeRecord()">
+        Close
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{editEvent ? 'Edit' : 'New Event'}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form #f = "ngForm" (ngSubmit)="onSubmit(f)">
+    <ion-item>
+      <ion-label posistion = "floating">Title</ion-label>
+      <ion-input autofocus= true autocorrect="on" required clear-input=true [(ngModel)] = "uploadEvent.title" name = "title"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Description </ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.description" name = "description"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Hours</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.hours" name = "hours"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Start Date</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.startdate" name = "startdate"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">End Date</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.endDate" name = "endDate"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Event Organisers</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.eventOrganisers" name = "eventOrganisers"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">CPD Points</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.CPDPoints" name = "CPDPoints"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Categotory</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.compentancyCat" name = "compentancyCat"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Reflective Notes</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.reflection" name = "reflection"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Learning Plan</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.learningPlan" name = "learningPlan"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position = "floating">Upload Certifcate</ion-label>
+      <ion-input required=true [(ngModel)]="uploadEvent.certificate" name = "certificate"></ion-input>
+    </ion-item>
+
+    <ion-button class="ion-margin-top" fill="outline" expand="block"
+    color="primary" type="submit">{{editEvent ? 'Update' : 'ADD'}}</ion-button>
+      </form>
+
+  </ion-content>
+  

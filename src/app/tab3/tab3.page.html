@@ -1,0 +1,78 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="end">
+      <ion-button (click)="addEvent()">
+        <ion-icon name="add" size="large"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      All Events
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="notifications-content">
+
+<!--add refrehser and pass event  https://www.freakyjolly.com/ionic-4-pull-to-refresh-functionality-in-ionic-4-x-application/-->
+<ion-refresher slot="fixed" (ionRefresh)="getAllEvents($event)" closeDuration="300ms" pullMax="300">
+  <ion-refresher-content refreshingText="Fetching CPD" refreshingSpinner="crescent" pullingIcon="arrow-down-outline" pullingText="Refresh">
+  </ion-refresher-content>
+  </ion-refresher> 
+
+  <!--use a angular virtual scroll for peromance and lazy loading; https://ionicacademy.com/angular-virtual-scroll-ionic/-->
+  <cdk-virtual-scroll-viewport itemSize="56" minBufferPx="900" maxBufferPx="1400">
+
+    <!--Search Bar-->
+    <ion-row>
+      <ion-col size="9">
+        <ion-searchbar name="search" (ionClear)="searchCancelled()" placeholder="Search Events" [(ngModel)]="serachTerm"></ion-searchbar>
+      </ion-col>
+      <ion-col size="3">
+        <ion-button (click)="onSearchinput()" [disabled]="!serachTerm">Search</ion-button>
+      </ion-col>
+    </ion-row>
+
+    <!--Add skleton default text block for loading, skleton text is cutom component-->
+    <ion-list *ngIf="events == null || searching; else showContentBlock">
+      <app-skeleton-text></app-skeleton-text>
+    </ion-list>
+
+    <ng-template #showContentBlock>
+      <ion-item-group>
+        <!--use cdkVirtualFor instead of *ngFor for cdk virtal scrolling-->
+        <!-- <ion-item-sliding *ngFor="let test of tests"> -->
+          <ion-item-sliding *cdkVirtualFor="let event of events; let isOdd=odd " [class.odd]="isOdd" #slidingItem>
+            <ion-item class="notification-item" lines="none">
+              <ion-avatar slot="start">
+                <img src="./assets/tests/tests6.jpg">
+              </ion-avatar>
+              <ion-row class="notification-item-wrapper" (click)="openEventModal(event)">
+                <ion-col class="details-wrapper">
+                  <h2 class="details-name">{{event.title}}</h2>
+                  <p class="details-description">{{event.description}}</p>
+                </ion-col>
+                <ion-col size="2" class="date-wrapper">
+                  <p class="notifcation-date">{{event.startdate}}</p>
+                </ion-col>
+              </ion-row>
+            </ion-item>
+            <ion-item-options slide="end">
+            <ion-item-option color="danger" (click)="removeEvent(event.id, slidingItem)">
+              <ion-icon name="trash"></ion-icon>
+            </ion-item-option>
+            <ion-item-option color="success" (click)="updateEvent(event, slidingItem )">
+              Edit
+            </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+
+      </ion-item-group>
+    </ng-template>
+</cdk-virtual-scroll-viewport>
+
+<!--Back to top button-->
+<div class="back-to-top-btn" *ngIf="scrollToTop" (click)="scrollToTopSpeed()">
+  <ion-icon name="chevron-up-outline"></ion-icon>
+</div>
+
+</ion-content>

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LabCPD</string>
+    <string name="title_activity_main">LabCPD</string>
+    <string name="package_name">com.mooneycallans.www</string>
+    <string name="custom_url_scheme">com.mooneycallans.www</string>
+</resources>
