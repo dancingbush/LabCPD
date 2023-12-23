@@ -107,12 +107,15 @@ export class CameraService {
      * 
      */
 
+    console.log("CameraService: Add new photo called.");
+
     const capturePhoto = await Camera.getPhoto({
       // Promots user to take a photo or select from photo album, applis to all platforms! Web / mobile
       
       resultType: CameraResultType.Uri,
-      source: CameraSource.Camera,
-      quality: 100
+      allowEditing: true,
+      source: CameraSource.Photos, // Promopt for upload or take new photo
+      quality: 90
 
     });
 
@@ -141,7 +144,7 @@ export class CameraService {
     })
 
 
-    return base64Data; // TRY THIS TO RETRUN IMAGE BASE64!
+    return base64Data as string; // TRY THIS TO RETRUN IMAGE BASE64!
   }
 
   public async loadSavedPhotod() {
@@ -205,7 +208,7 @@ private async savePhoto(photo : Photo){
 
 
 private async readAsBase64(photo: Photo){
-  //  hybrid will detect Cordova or Cap
+  //  hybrid will detect Cordova or Cap.
 
   if (this.platform.is('hybrid')){
     // Read file into base64 format
@@ -214,7 +217,7 @@ private async readAsBase64(photo: Photo){
     });
 
     //return await this.convertBlobToBase64(file.data) as string;
-    return file.data as string;
+    return file.data; // Blob only available  on web, on native data is retunred as string
   }else {
   // Web users, Fetch the photo, read as blob, then convert to base 64 format
   const response = await fetch(photo.webPath!);

@@ -5,7 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { DataService } from '../dataservice';
 import { CameraService } from '../camera.service';
 import { Camera2Service } from '../camera2.service';
-
+import { AlertController } from '@ionic/angular';
 
 /*
 
@@ -35,15 +35,17 @@ export class EventModalPage implements OnInit {
 
   @Input() editEvent!: cpdEvent; // event sent form calling class, tabs3
   isEdit = false; // convert to true if we are passed data to edit form calling class (list)
-  public selectedDate: string = new Date().toISOString(); //ion date calender
+  
+  // Tese will define the defaulkt  dates for ion calender 
+  public selectedDate: string = new Date().toISOString(); 
   public selectedEndDate : string = new Date().toISOString();
   public   uploadEvent = {
     id: 0,
     title: '',
     description : '',
     hours : 0,
-    startdate: new Date(this.selectedDate),
-    endDate: new Date(this.selectedEndDate),
+    startdate: new Date(),
+    endDate: new Date(),
     eventOrganisers: '',
     CPDPoints: 0,
     compentancyCat: '',
@@ -59,7 +61,8 @@ export class EventModalPage implements OnInit {
     private modalCtrl : ModalController, 
     public camera2Service : Camera2Service,
     public cameraService : CameraService,
-    private service : DataService 
+    private service : DataService,
+    private alertController : AlertController
     ) { }
 
   ngOnInit() {
@@ -132,7 +135,14 @@ export class EventModalPage implements OnInit {
   onSubmit(form : NgForm) {
     // Return all data form form/html eventmodal
     console.log("even-modal onSubmit(): Cpd event form submitted with event: " + JSON.stringify(form.value));
+    
     const event : cpdEvent = form.value;
+
+    // Get dates 
+    //event.startdate = new Date(this.selectedDate);
+
+    console.log("EventModal: date before ots been modified : ", event.startdate, " and end date : ", event.endDate);
+   
 
     if (this.editEvent){
       // Edit event
@@ -146,7 +156,7 @@ export class EventModalPage implements OnInit {
       });
     }else{
       // New event to add
-      console.log("Event-modal page: Creating a new event: ", event.title, " AND Photo base64 = ", this.base64photo);
+      console.log("Event-modal page: Creating a new event: ", event.title, " AND Photo base64 = ", this.base64photo, " and start date : ", event.startdate);
       event.certificate = this.base64photo;
 
       this.service.createEvent(event).subscribe(response => {
@@ -162,6 +172,31 @@ export class EventModalPage implements OnInit {
       });
     }
     
+  }
+
+async learningPlan(){
+    // Display pop text 
+    console.log("EventModal- learningPlan help txt called/")
+    let message = "What have I learnt, did I achive what I had set out to achive, how will / have I applied this new skill / learning to work. Waht is the imapct on on my role of this experience";
+    /*
+    What have I learnt?
+Did I achieve my learning outcomes?
+What kind of unplanned outcomes or challenges arose from this experience?
+Which barriers or blocks did I have to overcome?
+How have I applied this learning at work?
+What was the impact of this learning for service users and/or quality service provision?
+What lessons can I take from this experience?
+What was the impact of this learning on my professional practice?
+*/
+
+    const alert = await this.alertController.create({
+      header: 'Learning',
+      message: message,
+      buttons: ["OK"]
+    })
+
+    await alert.present();
+
   }
   
 }//end class

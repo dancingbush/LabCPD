@@ -35,32 +35,61 @@
     <ion-item>
       <ion-label position = "floating">Categotory</ion-label>
       <!--<ion-input required=true [(ngModel)]="uploadEvent.compentancyCat" name = "compentancyCat"></ion-input>-->
-      <ion-select [(ngModel)]="uploadEvent.compentancyCat" placeholder="CPD" interface="action-sheet" [multiple]="true">
+     
+      <ion-select [(ngModel)]="uploadEvent.compentancyCat" placeholder="Activity" interface="action-sheet" [multiple]="true">
         <ion-select-option value="Journal Club">Journal Club</ion-select-option>
-        <ion-select-option value="Research">Research</ion-select-option>
-        <ion-select-option value="Paper">Masters</ion-select-option>
-        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
-        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
-        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
-        <ion-select-option value="Journal Club">Journal Club</ion-select-option>
-
+      <ion-select-option value="Presentation">Presenation</ion-select-option>
+        <ion-select-option value="Research - Primary / Secondry Author / Contributor">Research - Primary / Secondry Author / Contributor</ion-select-option>
+        <ion-select-option value="Meeting">Meeting</ion-select-option>
+        <ion-select-option value="Webinar">Webinar</ion-select-option>
+        <ion-select-option value="Case Study">Case Study/Studies</ion-select-option>
+        <ion-select-option value="Infomral Acivity/Discussion">Infomral Acivity/Discussion</ion-select-option>
+        <ion-select-option value="MDT">MDT </ion-select-option>
+        <ion-select-option value="MSc Biomedial Science Related">MSc / PostGraduate </ion-select-option>
+        <ion-select-option value="Management Course">PostGraduate Management Course</ion-select-option>
+        <ion-select-option value="MCQ / Quiz">MCQ / Quiz</ion-select-option>
+        <ion-select-option value="Mentor - Reserach / Masters Programme">Mentor - Reserach / Masters Programme</ion-select-option>
+        <ion-select-option value="SOP">New / Amended SOP</ion-select-option>
+        <ion-select-option value="assay">Assay / Verifcation</ion-select-option>
+        <ion-select-option value="EQA">EQA Feedback/Results</ion-select-option>
+        <ion-select-option value="Online Activity">Online Acivity </ion-select-option>
+        <ion-select-option value="Internal Training">Internal Training</ion-select-option>
+        <ion-select-option value="Mandatory Training">Mandatory Training</ion-select-option>
+        <ion-select-option value="HSELand">HSE Land</ion-select-option>
+        <ion-select-option value="course">Course</ion-select-option>
+        <ion-select-option value="IT">IT Related</ion-select-option>
+        
+        <ion-select-option value="Other">Other</ion-select-option>
       </ion-select>
+    
     </ion-item>
     <ion-item>
-      <ion-label position = "floating">Reflective Notes</ion-label>
-      <!--<ion-input required=true [(ngModel)]="uploadEvent.reflection" name = "reflection"></ion-input>-->
-      <ion-textarea maxlength="2000"   [(ngModel)]="uploadEvent.reflection" autocapitalize="sentences" errorText="check" helperText="Looks good!" required="true"  rows="1" spellcheck="true" placeholder="Thinking about follwing criteria: " autoGrow="true"  [counter]="true"></ion-textarea>
+      <ion-label position = "floating">Learning Outcome</ion-label>
+      
+      <ion-textarea name = "reflection" maxlength="50000"   [(ngModel)]="uploadEvent.reflection" 
+      autocapitalize="sentences" errorText="check" helperText="How have my skills improved based on what I have learnt? " required="true"  
+      rows="3" spellcheck="true" placeholder="Thinking about follwing criteria: What have you learnt through completing this activity? How have your skills and knowledge improved or developed?  " autoGrow="true"  
+      [counter]="true"></ion-textarea>
+
     </ion-item>
+
+
     <ion-item>
-      <ion-label position = "floating">Learning Plan</ion-label>
-      <!--<ion-input required=true [(ngModel)]="uploadEvent.learningPlan" name = "learningPlan"></ion-input>-->
-      <ion-textarea maxlength="2000"   [(ngModel)]="uploadEvent.learningPlan" autocapitalize="sentences" errorText="check" helperText="Looks good!" required="true"  rows="1" spellcheck="true" placeholder="Think about A B C...." autoGrow="true"  [counter]="true"></ion-textarea>
+      <ion-label position = "floating">Imapct on Practice
+        
+      </ion-label>
+     
+      <ion-input required=true [(ngModel)]="uploadEvent.learningPlan" name = "learningPlan"></ion-input>
+      <ion-textarea name="learningPlan"  maxlength="50000"   [(ngModel)]="uploadEvent.learningPlan" autocapitalize="sentences" 
+      errorText="check" helperText="Looks good!" required="true"  rows="3" spellcheck="true" 
+      placeholder="Think About : How have you integrated this learning into your practice? How has this learning made a difference to your capability and performance in your role? What have you learnt through completing this activity? How have your skills and knowledge improved or developed? How has this new learning / skilllset impacted on my capibilty in my current role?" autoGrow="true"  [counter]="true"></ion-textarea>
+      
     </ion-item>
     
 
     <!--Hours, start and end dates-->
     <ion-item>
-      <ion-label position = "floating">Hours</ion-label>
+      <ion-label position = "floating">Hours Spent on Activity </ion-label>
       <ion-input required=true [(ngModel)]="uploadEvent.hours" name = "hours"></ion-input>
     </ion-item>
     
@@ -80,7 +109,7 @@
             max="31-01-2100"
             
             [(ngModel)]="selectedDate"
-            name="selectedDate"
+            name="startdate"
            
           ></ion-datetime>
         </ion-accordion>
@@ -96,7 +125,7 @@
         <ion-accordion #myAccordion value="start">
           <ion-item slot="header">
             <ion-label >End Date</ion-label>
-            <ion-note slot="end" id="datetimeValue">{{selectedEndDate | date: 'dd/MM/yyyy'}}</ion-note>
+            <ion-note slot="end" id="datetimeValue">{{selectedEndDate| date: 'dd/MM/yyyy'}}</ion-note>
           </ion-item>
           <ion-datetime
             id="datetime"
@@ -107,7 +136,7 @@
             max="31-01-2100"
             
             [(ngModel)]="selectedEndDate"
-            name="selectedEndDate"
+            name="endDate"
            
           ></ion-datetime>
         </ion-accordion>
@@ -118,9 +147,9 @@
 
 
 
-<!-- Button for Capturing Photo -->
+<!-- Button for Capturing Photo, rmeoved class="custom-button" as overlayed  -->
 <div class="center">
-  <ion-button class="custom-button" (click)="takeAndDisplayPhoto()">
+  <ion-button  (click)="takeAndDisplayPhoto()">
     <ion-icon slot="start" name="camera"></ion-icon> Capture Certificate Photo
   </ion-button>
 
@@ -153,7 +182,7 @@
 -->
 <!--Update Button-->
 <div class="center">
-    <ion-button shape="round" style="margin-top: 20px;" type="submit" [ngClass]="{greenClass: !editEvent, lightClass: editEvent}">
+    <ion-button shape="round" style="margin-top: 20px;" type="submit" >
     <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
     {{editEvent ? 'Update' : 'ADD'}}
   </ion-button>

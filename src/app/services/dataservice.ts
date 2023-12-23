@@ -18,64 +18,9 @@ export class DataService {
     private dateBaseURL ='http://mooneycallans.com/LabCPD/crud_api/api/LabCPDapp.php'; // remote DB
     private testLocalDatabse = 'http://localhost:8888/crud_api/api/LabCPDapp.php'; // Hosted on MAMP, scripts n HTDOCS (applciations-> MAMP)
     public event! : cpdEvent;
-    /*
-    public mockCpdEvents : cpdEvent[] = [
-      {
-        id : 0,
-        title : "Jounral Club",
-        description: "Bone MArrow Morphology",
-      hours: 0.5,
-        startdate: new Date('11/9/23'),
-    endDate: new Date('11/9/23'),
-    eventOrganisers: "SVUH HAematology",
-    CPDPoints: 1,
-    compentancyCat: "Internal",
-    reflection: "AML RARA vs Pherpial blood blasts appeard different",
-    learningPlan: 'Review further APML cases',
-    certificate: "Attached"
-      },
-      {
-        id : 1,
-        title : "MDT",
-        description: "Intresting Cases ",
-      hours: 0.5,
-      startdate: new Date('11/9/23'),
-    endDate: new Date('11/9/23'),
-    eventOrganisers: "SVUH HAematology",
-    CPDPoints: 1,
-    compentancyCat: "Internal",
-    reflection: "Accuty fatty liver disease",
-    learningPlan: "Train students",
-    certificate: "Attached" 
-      },
-      {
-        id : 2,
-        title : "Histology MDT",
-        description: "Haem Obc Annes Ward ",
-      hours: 1.5,
-        startdate: new Date('11/10/23'),
-    endDate: new Date('11/10/23'),
-    eventOrganisers: "SVUH HAematology",
-    CPDPoints: 2,
-    compentancyCat: "Internal",
-    reflection: "Annes Day Ward Rounds",
-    learningPlan: "Review morphology",
-    certificate: "Attached"
-      }
-    ]
-    */
+  
 
     constructor(private http : HttpClient) {}
-
-
-    /*
-    public getMockCpdEvents():cpdEvent[]{
-      //mock ata service for testing
-      console.log("dataservice getMockCDEvetnst- retunring these events : " + JSON.stringify(this.mockCpdEvents));
-      return this.mockCpdEvents;
-    }
-    */
-
 
     public getallEvents(){
       // Get all events form remote server or single if ID specified
@@ -101,23 +46,13 @@ export class DataService {
   }
 
   public createEvent (newEvent : cpdEvent) : Observable<any>{
-    console.log("Dataservice: create new event for : ",  newEvent.title , " and certifcate image : ", newEvent.certificate);
+    console.log("Dataservice: create new event for : ",  newEvent.title , " and certifcate image : ", newEvent.certificate) , " and start date : ", newEvent.startdate;
     
     return this.http.post(this.dateBaseURL, newEvent);
 
   }
 
-  /*
-  public createNewEntMockData(newEvent : cpdEvent) : Observable<cpdEvent>{
-    // Use fo mock event testing
-    console.log("dataservice: createNewNokcData, recuve this event :" + JSON.stringify(newEvent));
-    //const newMockArray = this.getMockCpdEvents();
-    //newMockArray.push(newEvent);
-    //this.mockCpdEvents = newMockArray;
-    //return of(newMockArray);
-    return of(newEvent)
-  }
-  */
+ 
 
   public updateEvent (event : cpdEvent, id : number){
     /**
@@ -136,14 +71,5 @@ export class DataService {
     return this.http.delete(this.dateBaseURL + '/?id=' + id);
   }
 
-  /*
-  public deletMockEvent(id : number){
-    //mock event testing
-
-    console.log("dataservice- delte mock event testing");
-    let modeifeMockEvents = this.getMockCpdEvents().filter(cpdEvent => cpdEvent.id !== id);
-    return modeifeMockEvents;
-  }
-  */
  
 }
