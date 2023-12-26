@@ -5,6 +5,10 @@ PODS:
     - Capacitor
   - CapacitorCamera (5.0.7):
     - Capacitor
+  - CapacitorCommunitySpeechRecognition (2.1.0):
+    - Capacitor
+  - CapacitorCommunityTextToSpeech (3.0.1):
+    - Capacitor
   - CapacitorCordova (5.5.0)
   - CapacitorFilesystem (5.1.4):
     - Capacitor
@@ -21,6 +25,8 @@ DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
+  - "CapacitorCommunitySpeechRecognition (from `../../node_modules/@capacitor-community/speech-recognition`)"
+  - "CapacitorCommunityTextToSpeech (from `../../node_modules/@capacitor-community/text-to-speech`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
@@ -35,6 +41,10 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/app"
   CapacitorCamera:
     :path: "../../node_modules/@capacitor/camera"
+  CapacitorCommunitySpeechRecognition:
+    :path: "../../node_modules/@capacitor-community/speech-recognition"
+  CapacitorCommunityTextToSpeech:
+    :path: "../../node_modules/@capacitor-community/text-to-speech"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorFilesystem:
@@ -52,6 +62,8 @@ SPEC CHECKSUMS:
   Capacitor: 57890b363df14d5d2d5d8461aa23e886cb34da2a
   CapacitorApp: 9d91a5a400e4ad8cafe66a02cc9d8073c864d7bb
   CapacitorCamera: 084b0b228bba7d00587910337b1c89e93b1d32ab
+  CapacitorCommunitySpeechRecognition: b404ef82fa846dd48f6417eb0c47955645ca0996
+  CapacitorCommunityTextToSpeech: a47d2746124fc06f1018791b3f154cfd2c5c4fe6
   CapacitorCordova: 3d3908a3d208a11a75f9df3b18c4405c4de76e1d
   CapacitorFilesystem: af704badfbc69f6f8623d9ed313e5490e3723dcb
   CapacitorHaptics: 4b1a7e1bac1794d1515842d304f9fce46ef5084c
@@ -59,6 +71,6 @@ SPEC CHECKSUMS:
   CapacitorPreferences: f03954bcb0ff09c792909e46bff88e3183c16b10
   CapacitorStatusBar: 540867ac3c63875b65bebd888f695de50a13a9a2
 
-PODFILE CHECKSUM: 645c6f0ebd6fe237b8c3df63febaa44115e4826d
+PODFILE CHECKSUM: 44c52f7e08324e06f3c7ce92f9971f7bb2c386a8
 
 COCOAPODS: 1.13.0

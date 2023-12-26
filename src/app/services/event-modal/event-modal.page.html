@@ -64,12 +64,29 @@
     
     </ion-item>
     <ion-item>
+      <ion-button (click)="speechToText()" *ngIf="!recordingVoice">
+        <ion-icon name="volume-high-outline" slot="start"></ion-icon>
+        Speak text
+      </ion-button>
+
+      <ion-button (click)="startSpeechRecognition()" *ngIf="!recordingVoice">
+        <ion-icon name="mic-outline" slot="start"></ion-icon>
+      </ion-button>
+
+      <ion-button (click)="stopSpeechRecording()" color="danger" *ngIf="recordingVoice">
+        <ion-icon name="mic-off-outline" slot="start"></ion-icon>
+        Stop Recording
+      </ion-button>
+
       <ion-label position = "floating">Learning Outcome</ion-label>
       
       <ion-textarea name = "reflection" maxlength="50000"   [(ngModel)]="uploadEvent.reflection" 
       autocapitalize="sentences" errorText="check" helperText="How have my skills improved based on what I have learnt? " required="true"  
       rows="3" spellcheck="true" placeholder="Thinking about follwing criteria: What have you learnt through completing this activity? How have your skills and knowledge improved or developed?  " autoGrow="true"  
-      [counter]="true"></ion-textarea>
+      [counter]="true"
+      [counterFormatter]="customCounterFormatter"
+      [value] = "specchToText"
+      ></ion-textarea>
 
     </ion-item>
 

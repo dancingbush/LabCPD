@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { cpdEvent } from '../interfaces';
 import { ModalController } from '@ionic/angular';
@@ -6,9 +6,11 @@ import { DataService } from '../dataservice';
 import { CameraService } from '../camera.service';
 import { Camera2Service } from '../camera2.service';
 import { AlertController } from '@ionic/angular';
+import {TextToSpeech } from '@capacitor-community/text-to-speech';
+import { SpeechRecognition } from '@capacitor-community/speech-recognition';
+
 
 /*
-
 This componment opens a modal when called from TAB3.
 TAB3 displays all CPD events, and gives user choice of adding, editing,
 or delting an event. This is passed via Modal object to this class via @Inject
@@ -35,7 +37,8 @@ export class EventModalPage implements OnInit {
 
   @Input() editEvent!: cpdEvent; // event sent form calling class, tabs3
   isEdit = false; // convert to true if we are passed data to edit form calling class (list)
-  
+  specchToText = "Speak to record your event details, press the Speak icon when complete."
+  recordingVoice = false;
   // Tese will define the defaulkt  dates for ion calender 
   public selectedDate: string = new Date().toISOString(); 
   public selectedEndDate : string = new Date().toISOString();
@@ -62,8 +65,12 @@ export class EventModalPage implements OnInit {
     public camera2Service : Camera2Service,
     public cameraService : CameraService,
     private service : DataService,
-    private alertController : AlertController
-    ) { }
+    private alertController : AlertController,
+    private changeDetectorRef : ChangeDetectorRef // detect Speech listeners  and update UI
+    ) {
+      // Initilise speak recognition
+      SpeechRecognition.requestPermissions();
+     }
 
   ngOnInit() {
     /*
@@ -83,7 +90,60 @@ export class EventModalPage implements OnInit {
 
   }
 
+  async startSpeechRecognition(){
+    // Start recording voice, esnure functionalty available first
 
+    const {available} = await SpeechRecognition.available();
+
+    if (available) {
+      this.recordingVoice = true;
+      SpeechRecognition.start({
+        popup: true, // Only for andrid and not reliable
+        partialResults: true, // returns text as its spoken
+        language: 'en-uk',
+        //maxResults - dont need
+      });
+
+      SpeechRecognition.addListener('partialResults', (data : any) => {
+        console.log("partialResults was fired", data.matches);
+        if (data.matches && data.matches.lenght > 0 ){
+          // mvoice is recording correctly
+          this.specchToText = data.matches[0]; // first result is largest likley hood of been correct
+          this.changeDetectorRef.detectChanges(); // uopadte UI when voice detected 
+          this.uploadEvent.reflection = data.matches[0];
+          console.log("Event mdoal - sppech detected: ", data.matches[0])
+        }
+
+        // Android with capactort speech plugin 2.1. has a diffenret result type then 'matches', its 'val;ue
+        if (data.value && data.value.lenght > 0) {
+          this.specchToText = data.value[0];
+          this.changeDetectorRef.detectChanges();
+        }
+
+      })
+    }
+  }
+
+  async stopSpeechRecording(){
+    // Stopd voide recodring
+    this.recordingVoice = false;
+    await SpeechRecognition.stop();
+  }
+
+  public speechToText() {
+    // Read back instructions to user 
+    console.log("Event modl- SpeechTotext called");
+    TextToSpeech.getSupportedVoices();
+    TextToSpeech.getSupportedVoices();
+    TextToSpeech.speak({
+      text: this.specchToText,
+      lang: 'en-uk',
+      rate: 0.8,
+      pitch: 0.8,
+      volume: 0.8,
+      category: 'ambient'
+    })
+  }
   public async takeAndDisplayPhoto() : Promise <void> {
     // Take a photo and then dipslay in HTML
 
