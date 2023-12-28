@@ -37,8 +37,12 @@ export class EventModalPage implements OnInit {
 
   @Input() editEvent!: cpdEvent; // event sent form calling class, tabs3
   isEdit = false; // convert to true if we are passed data to edit form calling class (list)
-  specchToText = "Speak to record your event details, press the Speak icon when complete."
-  recordingVoice = false;
+  // Speech reco
+  public specchToText = ""; // if speech used save to this var
+  public speechTotextLearningPLan = "";
+  public recordingVoice = false;
+  public recordingVoiceLearningPlan = false;
+  
   // Tese will define the defaulkt  dates for ion calender 
   public selectedDate: string = new Date().toISOString(); 
   public selectedEndDate : string = new Date().toISOString();
@@ -90,13 +94,42 @@ export class EventModalPage implements OnInit {
 
   }
 
-  async startSpeechRecognition(){
-    // Start recording voice, esnure functionalty available first
+  /*
+  async startSpeechReflection () {
+    // for the reflection txt area
+    console.log("Event modal- SppechRecongition for Learningoutcome / refelction called")
 
+    const {available } = await SpeechRecognition.available();
+
+    if (available && !this.recordingVoice){
+      this.recordingVoice = true;
+      SpeechRecognition.start({
+        popup: true,
+        partialResults: true,
+        language: 'en-UK'
+      });
+
+      SpeechRecognition.addListener('partialResults', (data: any) => {
+        if (data.matches) {
+
+          console.log("EventModal - SppechToText Learning Out come / Reflection ");
+            this.uploadEvent.reflection = data.matches[0];
+            this.specchToText = data.matches[0];
+            this.changeDetectorRef.detectChanges();
+        }
+      })
+    }
+
+  }
+  */
+  async startSpeechRecognition(textArea : string){
+    // Start recording voice, esnure functionalty available first, pass the textArea writing to
+
+    console.log("Eventmodal - SpeechRec called for textarea : " , textArea, "  called")
     const {available} = await SpeechRecognition.available();
 
-    if (available) {
-      this.recordingVoice = true;
+    if (available && !this.recordingVoice) {
+      
       SpeechRecognition.start({
         popup: true, // Only for andrid and not reliable
         partialResults: true, // returns text as its spoken
@@ -105,38 +138,76 @@ export class EventModalPage implements OnInit {
       });
 
       SpeechRecognition.addListener('partialResults', (data : any) => {
-        console.log("partialResults was fired", data.matches);
-        if (data.matches && data.matches.lenght > 0 ){
-          // mvoice is recording correctly
-          this.specchToText = data.matches[0]; // first result is largest likley hood of been correct
-          this.changeDetectorRef.detectChanges(); // uopadte UI when voice detected 
-          this.uploadEvent.reflection = data.matches[0];
-          console.log("Event mdoal - sppech detected: ", data.matches[0])
+        console.log("Event odal SpeechRec- txtearea = " , textArea);
+        
+        if (data.matches){
+          if (textArea == "Reflection"){
+            //update impact on prcative
+            this.recordingVoice = true;
+            console.log("EventModal - SpecchToText BUTTON- txt area Learning Outcome/Reflection  called : ", textArea);
+            this.uploadEvent.reflection = data.matches[0];
+            this.specchToText = data.matches[0];
+            this.changeDetectorRef.detectChanges();
+          }else {
+            this.recordingVoiceLearningPlan = true; //. display stop button
+            console.log("EventModal - SppechToText BUTTON- txt area Imapct on Practice/Learning Plan called ");
+            this.uploadEvent.learningPlan = data.matches[0];
+            this.speechTotextLearningPLan = data.matches[0];
+            this.changeDetectorRef.detectChanges();
+          }
         }
 
+        
         // Android with capactort speech plugin 2.1. has a diffenret result type then 'matches', its 'val;ue
-        if (data.value && data.value.lenght > 0) {
-          this.specchToText = data.value[0];
-          this.changeDetectorRef.detectChanges();
+        if (data.value) {
+          if (textArea == "Reflection"){
+            //update impact on prcative
+            console.log("EventModal - SpecchToText BUTTON- txt area Learning Outcome/Reflection  called : ", textArea);
+            this.uploadEvent.reflection = data.value[0];
+            this.specchToText = data.value[0];
+            this.changeDetectorRef.detectChanges();
+          }else {
+            console.log("EventModal - SppechToText BUTTON- txt area Imapct on Practice/Learning Plan called ");
+            this.uploadEvent.learningPlan = data.value[0];
+            this.specchToText = data.value[0];
+            this.changeDetectorRef.detectChanges();
+          }
         }
 
       })
     }
   }
 
-  async stopSpeechRecording(){
-    // Stopd voide recodring
-    this.recordingVoice = false;
+  async stopSpeechRecording(textArea : string){
+    // Stop voice recording 
+    if (textArea == 'reflection'){
+      this.recordingVoice = false; // display lucten back buttons
+    }else {
+
+      this.recordingVoiceLearningPlan = false;
+    }
+    
+    this.changeDetectorRef.detectChanges();
+    console.log("Removing  Sppech Listenrs and stopping service.")
+    SpeechRecognition.removeAllListeners();
     await SpeechRecognition.stop();
+    
   }
 
-  public speechToText() {
+  public speechToText(textArea : string) {
     // Read back instructions to user 
     console.log("Event modl- SpeechTotext called");
-    TextToSpeech.getSupportedVoices();
+
+    let textToSpeak = "";
+    if (textArea == 'learningPlan'){
+      textToSpeak = this.speechTotextLearningPLan;
+    } else {
+      textToSpeak =  this.specchToText;
+    }
+
     TextToSpeech.getSupportedVoices();
     TextToSpeech.speak({
-      text: this.specchToText,
+      text: textToSpeak,
       lang: 'en-uk',
       rate: 0.8,
       pitch: 0.8,

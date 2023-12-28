@@ -64,49 +64,67 @@
     
     </ion-item>
     <ion-item>
-      <ion-button (click)="speechToText()" *ngIf="!recordingVoice">
-        <ion-icon name="volume-high-outline" slot="start"></ion-icon>
-        Speak text
-      </ion-button>
+      
 
-      <ion-button (click)="startSpeechRecognition()" *ngIf="!recordingVoice">
-        <ion-icon name="mic-outline" slot="start"></ion-icon>
-      </ion-button>
-
-      <ion-button (click)="stopSpeechRecording()" color="danger" *ngIf="recordingVoice">
-        <ion-icon name="mic-off-outline" slot="start"></ion-icon>
-        Stop Recording
-      </ion-button>
-
-      <ion-label position = "floating">Learning Outcome</ion-label>
+      
+      <ion-label position = "floating">Learning Outcome/Reflection</ion-label>
       
       <ion-textarea name = "reflection" maxlength="50000"   [(ngModel)]="uploadEvent.reflection" 
       autocapitalize="sentences" errorText="check" helperText="How have my skills improved based on what I have learnt? " required="true"  
       rows="3" spellcheck="true" placeholder="Thinking about follwing criteria: What have you learnt through completing this activity? How have your skills and knowledge improved or developed?  " autoGrow="true"  
       [counter]="true"
-      [counterFormatter]="customCounterFormatter"
-      [value] = "specchToText"
       ></ion-textarea>
 
+      <ion-button (click)="startSpeechRecognition('Reflection')" *ngIf="!recordingVoice" shape="round" fill="clear">
+        <ion-icon name="mic-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ion-button (click)="stopSpeechRecording('reflection')" color="danger" *ngIf="recordingVoice"  shape="round">
+        <ion-icon name="mic-off-outline" slot="start"></ion-icon>
+      </ion-button>
+
+      <ion-button color="success" shape="round" (click)="speechToText('Impact/Reflection')" *ngIf="!recordingVoice && specchToText !== ''">
+        <ion-icon name="volume-high-outline" slot="start"></ion-icon>
+        Listen back
+      </ion-button>
     </ion-item>
 
 
     <ion-item>
-      <ion-label position = "floating">Imapct on Practice
-        
+      <ion-label position = "floating">Imapct on Practice/Learning Plan   
       </ion-label>
-     
-      <ion-input required=true [(ngModel)]="uploadEvent.learningPlan" name = "learningPlan"></ion-input>
+      
+       
+      
       <ion-textarea name="learningPlan"  maxlength="50000"   [(ngModel)]="uploadEvent.learningPlan" autocapitalize="sentences" 
       errorText="check" helperText="Looks good!" required="true"  rows="3" spellcheck="true" 
-      placeholder="Think About : How have you integrated this learning into your practice? How has this learning made a difference to your capability and performance in your role? What have you learnt through completing this activity? How have your skills and knowledge improved or developed? How has this new learning / skilllset impacted on my capibilty in my current role?" autoGrow="true"  [counter]="true"></ion-textarea>
+      placeholder="Think About : How have you integrated this learning into your practice? How has this learning made a difference to your capability and performance in your role? What have you learnt through completing this activity? How have your skills and knowledge improved or developed? How has this new learning / skilllset impacted on my capibilty in my current role?" autoGrow="true"  [counter]="true"
+      ></ion-textarea>
       
+      <ion-button shape="round" fill="clear" (click)="startSpeechRecognition('learningPlan')" *ngIf="!recordingVoiceLearningPlan">
+        <ion-icon name="mic-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+
+      <ion-button shape = "round" (click)="stopSpeechRecording('learningPlan')" color="danger" *ngIf="recordingVoiceLearningPlan">
+        <ion-icon name="mic-off-outline" slot = "start"></ion-icon>
+      </ion-button>
+
+      <ion-button shape="round" color="success" (click)="speechToText('learningPlan')" *ngIf="!recordingVoiceLearningPlan && speechTotextLearningPLan !== ''">
+        <ion-icon name="volume-high-outline" slot="icon-only"></ion-icon>
+        Listen Back
+      </ion-button>
+
+
+      
+ 
+     
     </ion-item>
     
 
     <!--Hours, start and end dates-->
     <ion-item>
       <ion-label position = "floating">Hours Spent on Activity </ion-label>
+     
       <ion-input required=true [(ngModel)]="uploadEvent.hours" name = "hours"></ion-input>
     </ion-item>
     
@@ -166,8 +184,8 @@
 
 <!-- Button for Capturing Photo, rmeoved class="custom-button" as overlayed  -->
 <div class="center">
-  <ion-button  (click)="takeAndDisplayPhoto()">
-    <ion-icon slot="start" name="camera"></ion-icon> Capture Certificate Photo
+  <ion-button ill="clear" (click)="takeAndDisplayPhoto()">
+    <ion-icon slot="icon-only" name="camera"></ion-icon>
   </ion-button>
 
   <!-- Place a grid where the image can be viewed once a photo is taken -->
@@ -199,7 +217,7 @@
 -->
 <!--Update Button-->
 <div class="center">
-    <ion-button shape="round" style="margin-top: 20px;" type="submit" >
+    <ion-button shape="round" color="success" style="margin-top: 20px;" type="submit" >
     <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
     {{editEvent ? 'Update' : 'ADD'}}
   </ion-button>
