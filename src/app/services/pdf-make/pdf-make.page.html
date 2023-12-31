@@ -1,0 +1,39 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>pdfMake</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  
+  <form (ngSubmit)="createPdf()" [formGroup]="myForm">
+    <ion-item>
+      <ion-label>Include Logo Image</ion-label>
+      <ion-checkbox formControlName="showLogo" slot="start"></ion-checkbox>
+
+    </ion-item>
+    
+    <ion-item>
+      <ion-label position="stacked">From</ion-label>
+      <ion-input formControlName="from"></ion-input>
+    </ion-item>
+    
+    <ion-item>
+      <ion-label position="stacked">To</ion-label>
+      <ion-input formControlName="to"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Text</ion-label>
+      <ion-textarea formControlName="text" rows ="3"></ion-textarea>
+    </ion-item>
+
+    <ion-button expand="full" (click)="createPdf()" type="submit">Create PDF</ion-button>
+  </form>
+
+  <!--Display photop if user takes one-->
+  <img [src]="photoPreview" *ngIf="photoPreview">
+
+  <ion-button (click)="takePicture()">Add Profile Pic</ion-button>
+  <ion-button (click)="downloadPDF()" color="secondry" [disabled]="!pdfObj">Save PDF</ion-button>
+</ion-content>

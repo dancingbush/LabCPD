@@ -10,3 +10,9 @@ if (environment.production) {
 
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.log(err));
+
+  // PDFMake 
+  import { defineCustomElements} from '@ionic/pwa-elements/loader';
+
+  // call the element loader after the platform has been bootstrapped
+  defineCustomElements(window);

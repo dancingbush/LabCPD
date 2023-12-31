@@ -33,6 +33,10 @@ const routes: Routes = [
   {
     path: 'diaply-event-modal',
     loadChildren: () => import('./services/diaply-event-modal/diaply-event-modal.module').then( m => m.DiaplyEventModalPageModule)
+  },
+  {
+    path: 'pdf-make',
+    loadChildren: () => import('./services/pdf-make/pdf-make.module').then( m => m.PdfMakePageModule)
   }
 ];
 @NgModule({

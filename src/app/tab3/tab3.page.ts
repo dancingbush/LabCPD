@@ -13,6 +13,7 @@ import { DiaplyEventModalPage } from '../services/diaply-event-modal/diaply-even
 import { IonItemSliding } from '@ionic/angular';
 import { NgZone} from '@angular/core';
 import { CameraService } from '../services/camera.service';
+import { PdfMakePage } from '../services/pdf-make/pdf-make.page';
 //import { title } from 'process';
 
 //import { Storage } from '@ionic/storage';//?out of use
@@ -361,6 +362,7 @@ removeEvent(id: number, slidingItem:IonItemSliding){
 
     openEventModal(event : cpdEvent) {
       // Open modal to display event info overlay
+
       console.log("tabs3.page: opening event model with event title :" + event.title);
       this.modalCtrl.create({
         component: DiaplyEventModalPage,
@@ -373,6 +375,19 @@ removeEvent(id: number, slidingItem:IonItemSliding){
       })
     }
 
+    openPrintPDFModal() {
+      // print CP records
+
+      console.log("tab3 page: Print PDF modal called: ");
+      this.modalCtrl.create({
+        component: PdfMakePage,
+        componentProps: {cpdRecord : this.events} // Pass key:vakue obj to nodal
+      })
+      .then(modal => {
+        modal.present();
+        return modal.onDidDismiss();
+      })
+    }
     addEvent(){
       /**c
        * Call eventmodal page
@@ -414,14 +429,6 @@ removeEvent(id: number, slidingItem:IonItemSliding){
           this.events.filter((event)=>{
             return true;
           })
-          // Trailing different things as list wont refresh, tried updated evenst array with opush and also
-          // retunring a new arrau, nothing works
-
-          //const typedData : cpdEvent[] = data;
-          //console.log("tab3-AddEvent- converted data <any> to data<cpdEvent[]: " + JSON.stringify(typedData))
-        //this.events = typedData;
-        //console.log("event-modal: events array now updated to new array: " + JSON.stringify(typedData));
-          //this.events = data;
           
           this.cdr.detectChanges();//Manully detced evenst updated as doesnt appear to be happening automatically
         })//ngZone 
@@ -477,6 +484,10 @@ removeEvent(id: number, slidingItem:IonItemSliding){
 
     }
 
+    public printPDF(){
+      // Call PrintPDF service and pass array of CPD 
+      console.log("Print PDF Called, passing array of CPD: ", this.cacheLocalData);
+    }
 } // end class
 
 

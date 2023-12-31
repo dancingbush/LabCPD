@@ -18,6 +18,10 @@ import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { StorageService } from './services/storageservice.service';
 import { CameraService} from './services/camera.service';
 
+// PDFMake / pwa-elements
+import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
+
+
 //import { Storage } from '@ionic/storage';
 
   // Ionic 5 Charts & Graphs using Chart.js Library
@@ -42,7 +46,9 @@ import { CameraService} from './services/camera.service';
     StorageService,
     CameraService,
     
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    FileOpener  
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

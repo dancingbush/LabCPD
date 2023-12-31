@@ -1,5 +1,10 @@
 <ion-header>
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="openPrintPDFModal()">
+        <ion-icon slot="icon-only" name ="print-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-buttons slot="end">
       <ion-button (click)="addEvent()">
         <ion-icon name="add" size="large"></ion-icon>
