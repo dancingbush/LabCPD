@@ -29,8 +29,10 @@
     </ion-item>
 
     <ion-button expand="full" (click)="createPdf()" type="submit">Create PDF</ion-button>
+    
   </form>
 
+  <ion-button (click)="generateDynamicPDF()">Create Dynamicc PDF</ion-button>
   <!--Display photop if user takes one-->
   <img [src]="photoPreview" *ngIf="photoPreview">
 

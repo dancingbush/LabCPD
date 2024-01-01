@@ -378,10 +378,10 @@ removeEvent(id: number, slidingItem:IonItemSliding){
     openPrintPDFModal() {
       // print CP records
 
-      console.log("tab3 page: Print PDF modal called: ");
+      console.log("tab3 page: Print PDF modal called, send tehse events: ", this.events);
       this.modalCtrl.create({
         component: PdfMakePage,
-        componentProps: {cpdRecord : this.events} // Pass key:vakue obj to nodal
+        componentProps: {cpdEvents : this.events} // Pass key:vakue obj to nodal
       })
       .then(modal => {
         modal.present();

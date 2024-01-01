@@ -14,6 +14,7 @@ import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { Content } from 'pdfmake/interfaces';
 import { cpdEvent } from '../interfaces';
+import { truncate } from 'fs';
 
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
@@ -59,6 +60,8 @@ export class PdfMakePage implements OnInit {
       to: 'Max',
       text: 'TEST'
     });
+
+    console.log("PDFMake ngOnIt: got cpdEvents from tab3 : ", this.cpdEvents);
   }
 
   loadLocalAssetToBase64 () {
@@ -112,10 +115,6 @@ var dd = {
 	content: [
     
 
-    // QR code
-    //{ qr : 'text in QR', fit : '500'},
-  
-   
 		{
 			text: 'CPD Title',
 			style: 'header'
@@ -298,8 +297,70 @@ var dd = {
       // using web
       this.pdfObj.download();
     }
-
-
-
   }
-}
+
+ 
+
+  generateDynamicPDF() {
+    // Creat dynamic PDF form cpdEvenst array
+    console.log("Creating dynmnmaic PDF from cpeEvent array with lenght : ", this.cpdEvents.length);
+
+    // Initialize the document definition
+    const dd : any = {
+      content: [],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true
+        },
+        subheader: {
+          fontSize: 15,
+          bold: true
+        },
+        quote: {
+          italics: true
+        },
+        small: {
+          fontSize: 8
+        }
+      }
+    };
+
+    // Loop through each object in the cpdEvents array
+    this.cpdEvents.forEach(cpdEvent => {
+      // Add title
+      dd.content.push({
+        text: cpdEvent.title,
+        style: 'header'
+      });
+
+      // Add description
+      dd.content.push('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Confectum ponit legam, perferendis nomine miserum, animi. Moveat nesciunt triari naturam.\n\n');
+      dd.content.push({
+        text: cpdEvent.description,
+        style: 'subheader'
+      });
+      dd.content.push(cpdEvent.reflection);
+
+      // Add learning
+      dd.content.push('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Confectum ponit legam, perferendis nomine miserum, animi. Moveat nesciunt triari naturam posset, eveniunt specie deorsus efficiat sermone instituendarum fuisse veniat, eademque mutat debeo. Delectet plerique protervi diogenem dixerit logikh levius probabo adipiscuntur afficitur, factis magistra inprobitatem aliquo andriam obiecta, religionis, imitarentur studiis quam, clamat intereant vulgo admonitionem operis iudex stabilitas vacillare scriptum nixam, reperiri inveniri maestitiam istius eaque dissentias idcirco gravis, refert suscipiet recte sapiens oportet ipsam terentianus, perpauca sedatio aliena video.\n\n');
+      dd.content.push({
+        text: cpdEvent.learningPlan,
+        style: 'subheader'
+      });
+      dd.content.push('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Confectum ponit legam, perferendis nomine miserum, animi. Moveat nesciunt triari naturam posset, eveniunt specie deorsus efficiat sermone instituendarum fuisse veniat, eademque mutat debeo. Delectet plerique protervi diogenem dixerit logikh levius probabo adipiscuntur afficitur, factis magistra inprobitatem aliquo andriam obiecta, religionis, imitarentur studiis quam, clamat intereant vulgo admonitionem operis iudex stabilitas vacillare scriptum nixam, reperiri inveniri maestitiam istius eaque dissentias idcirco gravis, refert suscipiet recte sapiens oportet ipsam terentianus, perpauca sedatio aliena video.\n\n');
+
+      // Add quote with multiple styles
+      dd.content.push({
+        text: 'It is possible to apply multiple styles, by passing an array. This paragraph uses two styles: quote and small. When multiple styles are provided, they are evaluated in the specified order which is important in case they define the same properties',
+        style: ['quote', 'small']
+      });
+    });
+
+    // Generate and download the PDF
+    pdfMake.createPdf(dd).download('document.pdf');
+  
+  }// end dynamic PDF
+
+
+}// class
