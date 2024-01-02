@@ -14,7 +14,7 @@ import * as pdfMake from "pdfmake/build/pdfmake";
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { Content } from 'pdfmake/interfaces';
 import { cpdEvent } from '../interfaces';
-import { truncate } from 'fs';
+import { read, truncate } from 'fs';
 
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
@@ -45,6 +45,11 @@ export class PdfMakePage implements OnInit {
   base64Image = "";
   photoPreview = "";
   logoData = ""; // Will hold base64 string
+  photoPlaceHolder = "";
+  CPDtimeFrameCaptured : string = '';
+  totalCPDPoints = 0;
+  totalEvents = 0;
+
 
 
 
@@ -56,18 +61,57 @@ export class PdfMakePage implements OnInit {
     // Create form to cpature data 
     this.myForm = this.fb.group({
       showLogo: true,
+      showWatermark: true,
       from: 'Ciaran',
       to: 'Max',
       text: 'TEST'
     });
 
+    // Load image form assest as base64 for logo
+    this.loadLocalAssetToBase64();
+    this.initilizeCPDDataSummary();
+
     console.log("PDFMake ngOnIt: got cpdEvents from tab3 : ", this.cpdEvents);
   }
 
+  public initilizeCPDDataSummary(){
+    // get daya summet for table summary in report
+
+    this.totalEvents = this.cpdEvents.length;
+    this.totalCPDPoints = this.cpdEvents.reduce((total, event) => total + event.CPDPoints, 0);
+
+   // const totalCPDPoints = cpdEvents.reduce((total, event) => total + event.cpdEvent.CPDPoints, 0);
+   // Get the StartDate from the first and last objects
+   const startDateFirstIndex: Date = this.cpdEvents[0].startdate;
+   console.log("Start Date : " , startDateFirstIndex);
+   const lastDateLastIndex : Date = this.cpdEvents[this.cpdEvents.length -1].startdate;
+   
+   // Calculate the time difference in milliseconds
+   const timeDifferenceInMilliseconds: number = lastDateLastIndex.getTime() - startDateFirstIndex.getTime();
+   
+   // Calculate the time difference in days
+   const daysDifference: number = timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24);
+   
+   // Calculate the time difference in months
+   const monthsDifference: number = lastDateLastIndex.getMonth() - startDateFirstIndex.getMonth() +
+     (12 * (lastDateLastIndex.getFullYear() - startDateFirstIndex.getFullYear()));
+   
+   // Calculate the time difference in years
+   const yearsDifference: number = lastDateLastIndex.getFullYear() - startDateFirstIndex.getFullYear();
+   
+   console.log(`Time Difference in Days: ${daysDifference}`);
+   console.log(`Time Difference in Months: ${monthsDifference}`);
+   console.log(`Time Difference in Years: ${yearsDifference}`);
+
+   this.CPDtimeFrameCaptured = yearsDifference + ' Years, ' + monthsDifference + ' months and ' + daysDifference + ' days.'
+    
+
+  }
   loadLocalAssetToBase64 () {
     // PDFMake you cannot just refernec asset folder
     // You must convert to base64 first
 
+    // get logo form assest as base64 as DF only handles images in base64 format
     this.http.get('./assets/cpd/otherCPD.jpeg', {responseType: 'blob'})
       .subscribe(res => {
         const reader = new FileReader();
@@ -76,6 +120,16 @@ export class PdfMakePage implements OnInit {
         }
         reader.readAsDataURL(res);
       })
+
+      // get base64 of profile pic placeholder in case user does not want a profile pic
+      this.http.get('./assets/user/profilepic.png', {responseType: 'blob'})
+        .subscribe(res => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            this.photoPlaceHolder = reader.result as string;
+          }
+          reader.readAsDataURL(res);
+        })
   }
 
   async takePicture() {
@@ -85,22 +139,20 @@ export class PdfMakePage implements OnInit {
       quality: 100,
       allowEditing: false,
       resultType: CameraResultType.Base64, // hase ot base64 as PDFMake only deals with base64
-      source: CameraSource.Camera
+      source: CameraSource.Prompt
     });
     
-    this.photoPreview = 'data:image/jpeg;base64,${image.base64Image}';
+    // Importnat to use a back tick ` and not a signle qoute ' in string interoplation
+    this.photoPreview = `data:image/jpeg;base64,${image.base64String}`;
 
   }
 
   createPdf(){
 
     const formValue = this.myForm.value; // get form contenst fomr html
-    const image  = this.photoPreview ? {image: this.photoPreview, width:300} : {}; // if image taken presnet it, if not blank
+    const image  = this.photoPreview ? {image: this.photoPreview, width:100, alignment: 'right'} : {image: this.photoPlaceHolder, width: 100, alignment: 'right'}; // if image taken presnet it, if not blank
 
-    // try this for svg error
-    let image2 = {};
-    image2 = { image : image  , width:50};
-
+  
     let logo = {};
     if (formValue.showLogo){
       logo = { image: this.logoData, width: 50};
@@ -305,51 +357,188 @@ var dd = {
     // Creat dynamic PDF form cpdEvenst array
     console.log("Creating dynmnmaic PDF from cpeEvent array with lenght : ", this.cpdEvents.length);
 
-    // Initialize the document definition
+    //const image  = this.photoPreview ? {image: this.photoPreview, width:300, alignment: 'right'} : {image: this.photoPlaceHolder, width:150, alignment: 'right'}; // if image taken presnet it, if not blank
+    const image  = this.photoPreview ? {image: this.photoPreview, width:300, alignment: 'right'} : {};
+    const formValue = this.myForm.value;
+    let logo : any = {}
+    if (formValue.showLogo){
+      logo = {image : this.logoData, width: 50};
+    }
+
+
+
+    // Initialize the document definition and styling
     const dd : any = {
+      watermark: {text: 'LabCPD', color: 'blue', opacity: 0.2, bold: true},
       content: [],
       styles: {
         header: {
           fontSize: 18,
-          bold: true
+          bold: true,
+          margin: [0, 0, 0, 10]
         },
         subheader: {
           fontSize: 15,
-          bold: true
+          bold: true,
+          margin: [0, 0, 0, 10]
+        },
+        nomral: {
+          fontszie: 13,
+          bold: false,
+          margin: [0,0,0,10]
         },
         quote: {
-          italics: true
+          italics: true,
+          margin: [0, 0, 0, 10]
         },
         small: {
           fontSize: 8
+        },
+        tableExample:  {
+          body: [
+            [
+              {rowSpan: 3, text: 'rowSpan: 3\n\nborder:\n[false, false, false, false]', fillColor: '#eeeeee', border: [false, false, false, false]},
+              'border:\nundefined',
+              'border:\nundefined'
+            ],
+            [
+              '',
+              'border:\nundefined',
+              'border:\nundefined'
+            ],
+            [
+              '',
+              'border:\nundefined',
+              'border:\nundefined'
+            ]
+          ]
         }
       }
     };
 
+    // Create a static header with image
+    //dd.content.push(logo);
+    dd.content.push({
+      logo,
+      columns: [
+        {
+      text: 'Ciaran Mooney',
+      style: 'header',
+      alignment: 'left'
+        },
+        {
+          text: 'CORU reg Number: 123456',
+          style: 'subheader',
+          alignment: 'left'
+            },
+            {
+              text: 'Date of regsitration: 23/03/23',
+              style: 'qoute',
+              alignment: 'left'
+            }
+      ],
+      image
+    })
+
+    dd.content.push(logo);
+    dd.content.push(image);
+
+    // Add summary table
+    dd.content.push(
+      {
+        style: 'tableExample',
+        table: {
+          body: [
+            ['Total Points', 'Total Activities', 'Time Peroid'],
+            [this.totalCPDPoints, this.totalEvents, this.CPDtimeFrameCaptured]
+          ]
+        },
+        alignment: 'center',
+      }
+    )
+  
+/** 
+    dd.content.push({
+      colums: [
+        {
+      text: 'CORU reg Number: 123456',
+      style: 'subheader',
+      alignment: 'left'
+        },
+        {
+          text: 'Date of regsitration: 23/03/23',
+          style: 'qoute',
+          alignment: 'left'
+        }
+      ]
+    }) 
+
+    dd.content.push ({
+      text: 'Date of regsitration: 23/03/23',
+      style: 'qoute',
+      alignment: 'left'
+    })
+*/
+    // Add static  image object directly
+  //  dd.content.push(image);
+    
+
+
     // Loop through each object in the cpdEvents array
     this.cpdEvents.forEach(cpdEvent => {
+      
+      
       // Add title
       dd.content.push({
-        text: cpdEvent.title,
+        text: 'Title: ' + cpdEvent.title,
         style: 'header'
       });
 
+      // Add date
+      dd.content.push({
+        text: cpdEvent.startdate ? cpdEvent.startdate : 'Date Not Recorded.',
+        style: 'subheader'
+      })
+
+      // ad summaty table
+      dd.content.push({
+        
+          style: 'tableExample',
+          table: {
+            body: [
+              ['CPD Points', 'Category', 'Event Organisers','Start Date', 'End Date', 'Activity Duration'],
+              [cpdEvent.CPDPoints, cpdEvent.compentancyCat, cpdEvent.eventOrganisers, cpdEvent.startdate, cpdEvent.endDate, cpdEvent.hours ]
+            ]
+          },
+          alignment: 'center'
+        
+      })
+
       // Add description
-      dd.content.push('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Confectum ponit legam, perferendis nomine miserum, animi. Moveat nesciunt triari naturam.\n\n');
+      dd.content.push({
+        text: 'Event Descritption',
+        style: 'subheader'
+      })
+
       dd.content.push({
         text: cpdEvent.description,
-        style: 'subheader'
+        style: 'normal'
       });
-      dd.content.push(cpdEvent.reflection);
 
       // Add learning
-      dd.content.push('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Confectum ponit legam, perferendis nomine miserum, animi. Moveat nesciunt triari naturam posset, eveniunt specie deorsus efficiat sermone instituendarum fuisse veniat, eademque mutat debeo. Delectet plerique protervi diogenem dixerit logikh levius probabo adipiscuntur afficitur, factis magistra inprobitatem aliquo andriam obiecta, religionis, imitarentur studiis quam, clamat intereant vulgo admonitionem operis iudex stabilitas vacillare scriptum nixam, reperiri inveniri maestitiam istius eaque dissentias idcirco gravis, refert suscipiet recte sapiens oportet ipsam terentianus, perpauca sedatio aliena video.\n\n');
       dd.content.push({
-        text: cpdEvent.learningPlan,
+        text: 'Learning Plan',
         style: 'subheader'
       });
-      dd.content.push('Lorem ipsum dolor sit amet, consectetur adipisicing elit. Confectum ponit legam, perferendis nomine miserum, animi. Moveat nesciunt triari naturam posset, eveniunt specie deorsus efficiat sermone instituendarum fuisse veniat, eademque mutat debeo. Delectet plerique protervi diogenem dixerit logikh levius probabo adipiscuntur afficitur, factis magistra inprobitatem aliquo andriam obiecta, religionis, imitarentur studiis quam, clamat intereant vulgo admonitionem operis iudex stabilitas vacillare scriptum nixam, reperiri inveniri maestitiam istius eaque dissentias idcirco gravis, refert suscipiet recte sapiens oportet ipsam terentianus, perpauca sedatio aliena video.\n\n');
+      dd.content.push({
+        text: cpdEvent.reflection,
+        style: 'nomral'
+      })
 
+      dd.content.push({
+        text: '------------------------------------------------------------------------------------------',
+        alignment: 'center'
+      })
       // Add quote with multiple styles
       dd.content.push({
         text: 'It is possible to apply multiple styles, by passing an array. This paragraph uses two styles: quote and small. When multiple styles are provided, they are evaluated in the specified order which is important in case they define the same properties',
