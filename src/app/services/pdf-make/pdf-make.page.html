@@ -5,6 +5,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
+  <!-- Prohgress bar-->
+  <ion-progress-bar [value]="progressValue"></ion-progress-bar>
   
   <form (ngSubmit)="createPdf()" [formGroup]="myForm">
     <ion-item>
@@ -34,11 +37,16 @@
     </ion-item>
 
     <ion-button expand="full" (click)="createPdf()" type="submit">Create PDF</ion-button>
+
+
     
   </form>
 
   <ion-button (click)="generateDynamicPDF()">Create Dynamicc PDF</ion-button>
   <!--Display photop if user takes one-->
+
+  <ion-progress-bar [value]="progressValue"></ion-progress-bar>
+
   <img [src]="photoPreview" *ngIf="photoPreview">
 
   <ion-button (click)="takePicture()">Add Profile Pic</ion-button>

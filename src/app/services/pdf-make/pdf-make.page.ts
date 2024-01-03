@@ -6,7 +6,7 @@ import { Camera, CameraResultType, CameraSource, Photo} from '@capacitor/camera'
 import {Plugins} from '@capacitor/core';
 import { Directory, Filesystem, FilesystemDirectory } from '@capacitor/filesystem';
 import { FileOpener } from '@awesome-cordova-plugins/file-opener/ngx';
-
+import { LoadingController } from '@ionic/angular';
 //import { Content } from 'pdfmake/interfaces';
 
 
@@ -49,13 +49,15 @@ export class PdfMakePage implements OnInit {
   CPDtimeFrameCaptured : string = '';
   totalCPDPoints = 0;
   totalEvents = 0;
+  progressValue = 0; // loading bar 
 
 
 
 
   constructor(private fb : FormBuilder,
     private plt : Platform, private http: HttpClient, 
-    private fileOpener : FileOpener) { }
+    private fileOpener : FileOpener,
+    private loadingController : LoadingController) { }
 
   ngOnInit() {
     // Create form to cpature data 
@@ -122,7 +124,7 @@ export class PdfMakePage implements OnInit {
       })
 
       // get base64 of profile pic placeholder in case user does not want a profile pic
-      this.http.get('./assets/user/profilepic.png', {responseType: 'blob'})
+      this.http.get('./assets/sample-images/user/profilepic.png', {responseType: 'blob'})
         .subscribe(res => {
           const reader = new FileReader();
           reader.onloadend = () => {
@@ -353,12 +355,18 @@ var dd = {
 
  
 
-  generateDynamicPDF() {
+  async generateDynamicPDF() {
+    
     // Creat dynamic PDF form cpdEvenst array
     console.log("Creating dynmnmaic PDF from cpeEvent array with lenght : ", this.cpdEvents.length);
 
-    //const image  = this.photoPreview ? {image: this.photoPreview, width:300, alignment: 'right'} : {image: this.photoPlaceHolder, width:150, alignment: 'right'}; // if image taken presnet it, if not blank
-    const image  = this.photoPreview ? {image: this.photoPreview, width:300, alignment: 'right'} : {};
+    // progress bar
+    const loading = await this.loadingController.create({
+      message: 'Creating PDF...'
+    })
+    await loading.present();
+
+    const image  = this.photoPreview ? {image: this.photoPreview, width:200, alignment: 'right'} : {image: this.photoPlaceHolder, width:200, alignment: 'right'};
     const formValue = this.myForm.value;
     let logo : any = {}
     if (formValue.showLogo){
@@ -416,71 +424,68 @@ var dd = {
       }
     };
 
-    // Create a static header with image
-    //dd.content.push(logo);
     dd.content.push({
-      logo,
       columns: [
         {
-      text: 'Ciaran Mooney',
-      style: 'header',
-      alignment: 'left'
-        },
-        {
-          text: 'CORU reg Number: 123456',
-          style: 'subheader',
-          alignment: 'left'
+          stack: [
+            {
+              text: 'Ciaran Mooney',
+              style: 'header',
+              alignment: 'left'
             },
             {
-              text: 'Date of regsitration: 23/03/23',
-              style: 'qoute',
+              text: 'CORU reg Number: 123456',
+              style: 'subheader',
               alignment: 'left'
-            }
+            },
+            {
+              text: 'Date of registration: 23/03/23',
+              style: 'quote',
+              alignment: 'left'
+            },
+            logo
+          ],
+          width: 'auto', // Adjust width as needed
+        },
+        {
+          stack: [
+            // to the right of the above stacked left column comtents
+            image,
+            // Add other content to the right as needed
+          ],
+          width: '*', // * mans tak euo remining space
+        },
       ],
-      image
-    })
-
-    dd.content.push(logo);
-    dd.content.push(image);
+    });
+    
+    
 
     // Add summary table
-    dd.content.push(
-      {
-        style: 'tableExample',
-        table: {
-          body: [
-            ['Total Points', 'Total Activities', 'Time Peroid'],
-            [this.totalCPDPoints, this.totalEvents, this.CPDtimeFrameCaptured]
-          ]
-        },
-        alignment: 'center',
-      }
-    )
-  
-/** 
-    dd.content.push({
-      colums: [
-        {
-      text: 'CORU reg Number: 123456',
-      style: 'subheader',
-      alignment: 'left'
-        },
-        {
-          text: 'Date of regsitration: 23/03/23',
-          style: 'qoute',
-          alignment: 'left'
-        }
-      ]
-    }) 
+   // Add an empty line
+dd.content.push({ text: '\n\n' });
 
-    dd.content.push ({
-      text: 'Date of regsitration: 23/03/23',
-      style: 'qoute',
-      alignment: 'left'
-    })
-*/
-    // Add static  image object directly
-  //  dd.content.push(image);
+// Add the centered table
+dd.content.push({
+  stack: [
+    {
+      text: 'Total Summary',
+      style: 'subheader',
+      alignment: 'center',
+    },
+    {
+      style: 'tableExample',
+      table: {
+        body: [
+          ['Total Points', 'Total Activities', 'Time Period'],
+          [this.totalCPDPoints, this.totalEvents, this.CPDtimeFrameCaptured]
+        ]
+      },
+      alignment: 'center', // Center the table within the stack
+    },
+  ],
+  alignment: 'center', // Center the entire stack
+});
+
     
 
 
@@ -490,13 +495,13 @@ var dd = {
       
       // Add title
       dd.content.push({
-        text: 'Title: ' + cpdEvent.title,
+        text: '\n\nTitle: ' + cpdEvent.title,
         style: 'header'
       });
 
       // Add date
       dd.content.push({
-        text: cpdEvent.startdate ? cpdEvent.startdate : 'Date Not Recorded.',
+        text: cpdEvent.startdate ? cpdEvent.startdate : '\nDate Not Recorded.\n\n',
         style: 'subheader'
       })
 
@@ -516,7 +521,7 @@ var dd = {
 
       // Add description
       dd.content.push({
-        text: 'Event Descritption',
+        text: '\n\nEvent Descritption',
         style: 'subheader'
       })
 
@@ -527,7 +532,7 @@ var dd = {
 
       // Add learning
       dd.content.push({
-        text: 'Learning Plan',
+        text: '\n\nLearning Plan',
         style: 'subheader'
       });
       dd.content.push({
@@ -536,7 +541,7 @@ var dd = {
       })
 
       dd.content.push({
-        text: '------------------------------------------------------------------------------------------',
+        text: '\n\n------------------------------------------------------------------------------------------',
         alignment: 'center'
       })
       // Add quote with multiple styles
@@ -547,9 +552,33 @@ var dd = {
     });
 
     // Generate and download the PDF
-    pdfMake.createPdf(dd).download('document.pdf');
+    //const pdfDoc = pdfMake.createPdf(dd).download('document.pdf');
+    
+   
+
+    this.pdfObj = pdfMake.createPdf(dd);
+
+    // Close progress bar
+    this.pdfObj.download((buffer: ArrayBuffer) => {
+      // Handle buffer 
+      console.log("PDFMake - calling downloadPDF()");
+      this.downloadPDF();
+      loading.dismiss(); // dismiss once loaded
+    }, (progress: { loaded: number; total: number }) => {
+      // This callback will be used to update the progress bar as PDF is generated 
+      console.log("PDFMake - adding to the progress bar...progressValue ", this.progressValue);
+      this.progressValue = Math.round((progress.loaded / progress.total) * 100);
+    });
+    
+
+
+
+
+  }
+
   
-  }// end dynamic PDF
+  
+  //}// end dynamic PDF
 
 
 }// class
