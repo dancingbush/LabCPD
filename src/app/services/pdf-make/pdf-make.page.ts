@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
-import { Platform } from '@ionic/angular';
+import { FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
+import { PickerController, Platform } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { Camera, CameraResultType, CameraSource, Photo} from '@capacitor/camera';
 import {Plugins} from '@capacitor/core';
@@ -50,6 +50,15 @@ export class PdfMakePage implements OnInit {
   totalCPDPoints = 0;
   totalEvents = 0;
   progressValue = 0; // loading bar 
+// Tese will define the defaulkt  dates for ion calender 
+selectedDate: string = new Date().toISOString();
+selectedEndDate : string = new Date().toISOString();
+// Bind from dates entered 'name'
+startDate = new Date();
+endDate = new Date();
+checkBoxAllDates : boolean = true;
+filteredCpdEvents! : cpdEvent[];
+
 
 
 
@@ -57,10 +66,11 @@ export class PdfMakePage implements OnInit {
   constructor(private fb : FormBuilder,
     private plt : Platform, private http: HttpClient, 
     private fileOpener : FileOpener,
-    private loadingController : LoadingController) { }
+    private loadingController : LoadingController) {}
 
   ngOnInit() {
     // Create form to cpature data 
+    /** 
     this.myForm = this.fb.group({
       showLogo: true,
       showWatermark: true,
@@ -68,7 +78,20 @@ export class PdfMakePage implements OnInit {
       to: 'Max',
       text: 'TEST'
     });
+    */
+/*
+    this.myForm = this.fb.group({
+      showLogo: [false],
+      showWatermark: [false],
+      from: [''],
+      to: [''],
+      text: [''],
+      startDate: [null, Validators.required],
+      endDate: [null, Validators.required],
+    });
+    */
 
+    // Get calnder checkbox valyes
     // Load image form assest as base64 for logo
     this.loadLocalAssetToBase64();
     this.initilizeCPDDataSummary();
@@ -109,6 +132,9 @@ export class PdfMakePage implements OnInit {
     
 
   }
+
+  
+
   loadLocalAssetToBase64 () {
     // PDFMake you cannot just refernec asset folder
     // You must convert to base64 first
@@ -355,10 +381,17 @@ var dd = {
 
  
 
-  async generateDynamicPDF() {
+  async generateDynamicPDF(form : NgForm) {
     
     // Creat dynamic PDF form cpdEvenst array
+    this.startDate = form.value.startDate;
+    this.endDate = form.value.endDate;
+    this.checkBoxAllDates = form.value.checkBoxallDatesValue;
+
+  
+    console.log("PDFMake form value submitted : ", form.value , " and allDates checkbox = ", form.value.checkBoxallDatesValue);
     console.log("Creating dynmnmaic PDF from cpeEvent array with lenght : ", this.cpdEvents.length);
+    console.log("PDFMaker onsubmit genearteDynamicPDF() dates captured: start date = ", this.startDate);
 
     // progress bar
     const loading = await this.loadingController.create({
@@ -366,15 +399,28 @@ var dd = {
     })
     await loading.present();
 
+    // Check if 'All' date has not  check, if not then filter on selected dates
+    let dateRange = "";
+    if (!form.value.checkBoxallDatesValue){
+       //this.filteredCpdEvents = await this.filterCPDEvents();
+       this.cpdEvents = await this.filterCPDEvents();
+       console.log("PDFMake - chekc date vlaues ofmr date picker: start date ", this.startDate, " and end date : ", this.endDate, " And data type of startDate : " , typeof(this.startDate));
+    
+       const startDateString = new Date(this.startDate).toISOString().split('T')[0];
+       const endDateString = new Date(this.endDate).toISOString().split('T')[0];
+     
+       dateRange = this.checkBoxAllDates ? 'All' : `${startDateString}:${endDateString}` 
+
+    }
+
     const image  = this.photoPreview ? {image: this.photoPreview, width:200, alignment: 'right'} : {image: this.photoPlaceHolder, width:200, alignment: 'right'};
-    const formValue = this.myForm.value;
+    const formValue = form.value;
     let logo : any = {}
     if (formValue.showLogo){
       logo = {image : this.logoData, width: 50};
     }
 
-
-
+    
     // Initialize the document definition and styling
     const dd : any = {
       watermark: {text: 'LabCPD', color: 'blue', opacity: 0.2, bold: true},
@@ -468,7 +514,7 @@ dd.content.push({ text: '\n\n' });
 dd.content.push({
   stack: [
     {
-      text: 'Total Summary',
+      text: 'Total Summary All CPD Events',
       style: 'subheader',
       alignment: 'center',
     },
@@ -486,7 +532,20 @@ dd.content.push({
   alignment: 'center', // Center the entire stack
 });
 
-    
+dd.content.push({
+  columns: [
+    {
+      text: '\n\nCPD Transcript Date Range: ' + dateRange,
+      style: 'subheader',
+      alignment: 'left'
+    },
+    {
+      text: 'Date Generated: ' + new Date().toDateString(),
+      style: 'subheader',
+      alignment: 'right'
+    }
+  ]
+});
 
 
     // Loop through each object in the cpdEvents array
@@ -576,9 +635,31 @@ dd.content.push({
 
   }
 
+  async filterCPDEvents() : Promise<cpdEvent[]>{
+    /** 
+     * Filter the cpdEvents array on the dates selected form date picker (this.startDate / this.endDate)
+     * Ion date picker retunrs a string
+     * You can compar  strings with '=> =< '  operands as long as they are the same fomrat string
+     * Allot of chedcs with types are made, due to issues possibly due to the test data base enties
+     * been a mixture of strings and Date objects during testing
+     */
+    
+    const startDateString = new Date(this.startDate).toISOString().split('T')[0];
+  const endDateString = new Date(this.endDate).toISOString().split('T')[0];
+  console.log("Filtering ion picker  dates between startdate  ", startDateString, " of type: ", typeof(startDateString)," and end date ", endDateString, " type of: ", typeof(endDateString));
+
+  return this.cpdEvents.filter(event => {
+    console.log("PDFMake - filter on dates: event.startdate value : ", event.startdate, " and data type should be string = ", typeof event.startdate);
   
+    if (typeof event.startdate === "string" || event.startdate instanceof String) {
+      const eventDateString = new Date(event.startdate).toISOString().split('T')[0];
+      console.log(`In loop- Filtering on event date:", eventDateString, " Is added to new array - ${eventDateString >= startDateString && eventDateString <= endDateString}`);
+      return eventDateString >= startDateString && eventDateString <= endDateString;
+    }
   
-  //}// end dynamic PDF
+    return false; // Filter out events with no valid startdate
+  });
+  }
 
 
 }// class
