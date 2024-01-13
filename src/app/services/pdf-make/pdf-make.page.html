@@ -1,13 +1,12 @@
 <ion-header [translucent]="true">
-  <ion-toolbar>
+  <ion-toolbar class="ion-text-center" color="primary">
     <ion-title>pdfMake</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding" color="light">
 
-  <!-- Prohgress bar-->
-  <ion-progress-bar [value]="progressValue"></ion-progress-bar>
+
   
   <!--
   <form (ngSubmit)="generateDynamicPDF()" [formGroup]="myForm">
@@ -97,28 +96,32 @@
 
 -->
 
-  <form #f = "ngForm" (ngSubmit)="generateDynamicPDF(f)">
+  <form #f = "ngForm" (ngSubmit)="generateDynamicPDF(f)" color="light">
     <ion-item>
       <ion-label position = "floating">Title</ion-label>
     </ion-item>
     
-
+<!--
     <ion-item>
       <ion-label>Include Logo Image</ion-label>
       <ion-checkbox formControlName="showLogo" slot="start"></ion-checkbox>
 
     </ion-item>
-
+  -->
     <ion-item>
       <ion-label>Include Watermark</ion-label>
-      <ion-checkbox formControlName="showWatermark" slot="end"></ion-checkbox>
+      <ion-checkbox name="showWatermarkCheckBoxValue" [(ngModel)]="includeWaterMark" slot="end"></ion-checkbox>
     </ion-item>
     
     <ion-item>
-      <ion-label>{{ checkBoxAllDates ? 'All Dates' : 'Filter Dates Below'}}</ion-label>
+      <ion-label>{{ checkBoxAllDates ? 'All Dates / Filter Dates' : 'Filter Dates Below'}}</ion-label>
         <ion-checkbox  name="checkBoxallDatesValue" [(ngModel)]="checkBoxAllDates" slot="end"></ion-checkbox>
     </ion-item>
 
+    <ion-item>
+      <ion-label>Include Profile Picture</ion-label>
+      <ion-checkbox name="willTakePhotoCheckBoxValue"  [(ngModel)]="willTakePhoto" slot="end"></ion-checkbox>
+    </ion-item>
 
     <ion-list *ngIf="!checkBoxAllDates">
       <ion-accordion-group>
@@ -183,9 +186,8 @@
 
 <!--Update Button-->
 <div class="center">
-    <ion-button shape="round" color="success" style="margin-top: 20px;" type="submit" >
-    <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
-    Create PDF
+    <ion-button shape="round" fill="outline" style="margin-top: 20px;" type="submit" >
+    <ion-icon slot="icon-only" name="print"></ion-icon>
   </ion-button>
   </div>
 </form>
@@ -196,10 +198,22 @@
   <!--<ion-button (click)="generateDynamicPDF()">Create Dynamicc PDF</ion-button>-->
   <!--Display photop if user takes one-->
 
+  <!--
   <ion-progress-bar [value]="progressValue"></ion-progress-bar>
+  -->
 
-  <img [src]="photoPreview" *ngIf="photoPreview">
+  <div class="center">
+  <img [src]="photoPreview" *ngIf="willTakePhoto">
 
-  <ion-button (click)="takePicture()">Add Profile Pic</ion-button>
+
+  <ion-button class="ion-text-center" *ngIf="willTakePhoto" class= "ion-text-center" (click)="takePicture()" shape="round" fill="outline">
+    <ion-icon slot="icon-only" name="camera"></ion-icon>
+  </ion-button>
+  </div>
+  <!--
   <ion-button (click)="downloadPDF()" color="secondry" [disabled]="!pdfObj">Save PDF</ion-button>
+  -->
+  <ion-footer>
+    
+  </ion-footer>
 </ion-content>

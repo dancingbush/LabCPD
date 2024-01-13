@@ -15,6 +15,7 @@ import * as pdfFonts from 'pdfmake/build/vfs_fonts';
 import { Content } from 'pdfmake/interfaces';
 import { cpdEvent } from '../interfaces';
 import { read, truncate } from 'fs';
+import { table } from 'console';
 
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
@@ -58,6 +59,11 @@ startDate = new Date();
 endDate = new Date();
 checkBoxAllDates : boolean = true;
 filteredCpdEvents! : cpdEvent[];
+willTakePhoto : boolean = false;
+includeWaterMark: boolean = true;
+totalCPDPointsFilteredDates = 0;
+totalEventsFilteredDates = 0;
+totalCPDHoursFilteredEvents = 0;
 
 
 
@@ -379,7 +385,21 @@ var dd = {
     }
   }
 
- 
+ public calculateCPDPointsOnFilteredDates(){
+  // If filetred dates then calulate summary data 
+
+  this.totalEventsFilteredDates= this.cpdEvents.length-1;
+  this.totalCPDPointsFilteredDates = this.cpdEvents.reduce((sum, cpdEvent)=> {
+    return sum + (cpdEvent.CPDPoints || 0);
+  }, 0);
+
+  this.totalCPDHoursFilteredEvents = this.cpdEvents.reduce((sum, cpdEvent )=>{
+    return sum + (cpdEvent.hours || 0);
+  },0)
+
+
+
+ }
 
   async generateDynamicPDF(form : NgForm) {
     
@@ -387,6 +407,8 @@ var dd = {
     this.startDate = form.value.startDate;
     this.endDate = form.value.endDate;
     this.checkBoxAllDates = form.value.checkBoxallDatesValue;
+    this.willTakePhoto = form.value.willTakePhotoCheckBoxValue;
+    this.includeWaterMark= form.value.showWatermarkCheckBoxValue;
 
   
     console.log("PDFMake form value submitted : ", form.value , " and allDates checkbox = ", form.value.checkBoxallDatesValue);
@@ -400,23 +422,29 @@ var dd = {
     await loading.present();
 
     // Check if 'All' date has not  check, if not then filter on selected dates
-    let dateRange = "";
+    let dateRange = "All";
     if (!form.value.checkBoxallDatesValue){
-       //this.filteredCpdEvents = await this.filterCPDEvents();
        this.cpdEvents = await this.filterCPDEvents();
        console.log("PDFMake - chekc date vlaues ofmr date picker: start date ", this.startDate, " and end date : ", this.endDate, " And data type of startDate : " , typeof(this.startDate));
     
        const startDateString = new Date(this.startDate).toISOString().split('T')[0];
        const endDateString = new Date(this.endDate).toISOString().split('T')[0];
      
-       dateRange = this.checkBoxAllDates ? 'All' : `${startDateString}:${endDateString}` 
+       dateRange = this.checkBoxAllDates ? 'All' : `${startDateString} to ${endDateString}` 
+
+       // Calculate CPD summary table stats on filetred dates for use later
+       this.calculateCPDPointsOnFilteredDates();
 
     }
+    
 
+    // If photo taken (chekbox ticked) use photo form user otherwise use default photo
     const image  = this.photoPreview ? {image: this.photoPreview, width:200, alignment: 'right'} : {image: this.photoPlaceHolder, width:200, alignment: 'right'};
     const formValue = form.value;
+    
     let logo : any = {}
-    if (formValue.showLogo){
+    if (this.includeWaterMark){
+      // If logo checkbox checked use it
       logo = {image : this.logoData, width: 50};
     }
 
@@ -448,22 +476,22 @@ var dd = {
         small: {
           fontSize: 8
         },
-        tableExample:  {
+        tableExample: {
           body: [
             [
-              {rowSpan: 3, text: 'rowSpan: 3\n\nborder:\n[false, false, false, false]', fillColor: '#eeeeee', border: [false, false, false, false]},
-              'border:\nundefined',
-              'border:\nundefined'
+              { text: 'rowSpan: 3\n\nborder:\n[false, false, false, false]', fillColor: '#eeeeee', border: [false, false, false, false], alignment: 'center' },
+              { text: 'border:\nundefined', alignment: 'center' },
+              { text: 'border:\nundefined', alignment: 'center' }
             ],
             [
-              '',
-              'border:\nundefined',
-              'border:\nundefined'
+              { text: '', alignment: 'center' }, // Empty cell to maintain alignment
+              { text: 'border:\nundefined', alignment: 'center' },
+              { text: 'border:\nundefined', alignment: 'center' }
             ],
             [
-              '',
-              'border:\nundefined',
-              'border:\nundefined'
+              { text: '', alignment: 'center' }, // Empty cell to maintain alignment
+              { text: 'border:\nundefined', alignment: 'center' },
+              { text: 'border:\nundefined', alignment: 'center' }
             ]
           ]
         }
@@ -499,51 +527,82 @@ var dd = {
             image,
             // Add other content to the right as needed
           ],
-          width: '*', // * mans tak euo remining space
+          width: '*', // * maeans take up remaining space
         },
       ],
     });
     
     
 
-    // Add summary table
+    
    // Add an empty line
 dd.content.push({ text: '\n\n' });
 
-// Add the centered table
-dd.content.push({
-  stack: [
+// Add the Summary centered table
+dd.content.push(
+  //stack: [
     {
       text: 'Total Summary All CPD Events',
       style: 'subheader',
-      alignment: 'center',
+      alignment: 'center', // Optional: You can add alignment to the text
     },
     {
       style: 'tableExample',
+      alignment: 'center',
       table: {
         body: [
           ['Total Points', 'Total Activities', 'Time Period'],
           [this.totalCPDPoints, this.totalEvents, this.CPDtimeFrameCaptured]
         ]
       },
-      alignment: 'center', // Center the table within the stack
+      //alignment: 'center', // Center the table within the stack
     },
-  ],
-  alignment: 'center', // Center the entire stack
-});
+  //],
+ // alignment: 'center', // Center the entire stack
+);
 
 dd.content.push({
+  text: '\n\n'
+});
+
+if (dateRange !== 'All'){
+  // summarise data fro selected date range
+
+  dd.content.push ({
+    text: '\n\n',
+    columns: [
+      {
+        text: 'Summary for Selcected Dates : ' + dateRange,
+        style: 'subheader',
+        alignment: 'left'
+      },
+      {
+        style: 'tableExample',
+        table : {
+          body: [
+            ['Total Points', 'Events', 'CPD Hours'],
+          [this.totalCPDPointsFilteredDates, this.totalEventsFilteredDates,this.totalCPDHoursFilteredEvents]]
+          
+        },
+
+      }
+    ],
+  })
+}
+
+dd.content.push({
+  text: '\n\n',
   columns: [
     {
-      text: '\n\nCPD Transcript Date Range: ' + dateRange,
+      text: 'CPD Transcript Date Range: ' + dateRange,
       style: 'subheader',
-      alignment: 'left'
+      alignment: 'left',
     },
     {
       text: 'Date Generated: ' + new Date().toDateString(),
       style: 'subheader',
-      alignment: 'right'
-    }
+      alignment: 'right',
+    },
   ]
 });
 
@@ -642,6 +701,7 @@ dd.content.push({
      * You can compar  strings with '=> =< '  operands as long as they are the same fomrat string
      * Allot of chedcs with types are made, due to issues possibly due to the test data base enties
      * been a mixture of strings and Date objects during testing
+     * 
      */
     
     const startDateString = new Date(this.startDate).toISOString().split('T')[0];
