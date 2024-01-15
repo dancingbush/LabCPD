@@ -16,6 +16,7 @@ import { Content } from 'pdfmake/interfaces';
 import { cpdEvent } from '../interfaces';
 import { read, truncate } from 'fs';
 import { table } from 'console';
+import { ModalController } from '@ionic/angular'; 
 
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
@@ -64,6 +65,7 @@ includeWaterMark: boolean = true;
 totalCPDPointsFilteredDates = 0;
 totalEventsFilteredDates = 0;
 totalCPDHoursFilteredEvents = 0;
+isPDFDownLoaded : boolean = false;
 
 
 
@@ -72,7 +74,8 @@ totalCPDHoursFilteredEvents = 0;
   constructor(private fb : FormBuilder,
     private plt : Platform, private http: HttpClient, 
     private fileOpener : FileOpener,
-    private loadingController : LoadingController) {}
+    private loadingController : LoadingController,
+    private modalCtyl : ModalController) {}
 
   ngOnInit() {
     // Create form to cpature data 
@@ -441,17 +444,22 @@ var dd = {
     // If photo taken (chekbox ticked) use photo form user otherwise use default photo
     const image  = this.photoPreview ? {image: this.photoPreview, width:200, alignment: 'right'} : {image: this.photoPlaceHolder, width:200, alignment: 'right'};
     const formValue = form.value;
-    
+    let dd : any = {}; // document
+    dd['watermark'] = {};
+
     let logo : any = {}
     if (this.includeWaterMark){
       // If logo checkbox checked use it
       logo = {image : this.logoData, width: 50};
+      dd['watermark'] = {text: 'CPD', color:'blue',
+       opacity: 0.2, bold: true};
     }
 
     
     // Initialize the document definition and styling
-    const dd : any = {
+    dd  = {
       watermark: {text: 'LabCPD', color: 'blue', opacity: 0.2, bold: true},
+      
       content: [],
       styles: {
         header: {
@@ -544,7 +552,7 @@ dd.content.push(
     {
       text: 'Total Summary All CPD Events',
       style: 'subheader',
-      alignment: 'center', // Optional: You can add alignment to the text
+      alignment: 'left', // Optional: You can add alignment to the text
     },
     {
       style: 'tableExample',
@@ -568,9 +576,11 @@ dd.content.push({
 if (dateRange !== 'All'){
   // summarise data fro selected date range
 
-  dd.content.push ({
-    text: '\n\n',
-    columns: [
+  dd.content.push (
+    {
+    text: '\n\n'
+    },
+    //columns: [
       {
         text: 'Summary for Selcected Dates : ' + dateRange,
         style: 'subheader',
@@ -586,12 +596,15 @@ if (dateRange !== 'All'){
         },
 
       }
-    ],
-  })
+    //],
+  )
 }
 
+dd.content.push ({
+  text: '\n\n'
+})
+
 dd.content.push({
-  text: '\n\n',
   columns: [
     {
       text: 'CPD Transcript Date Range: ' + dateRange,
@@ -682,6 +695,7 @@ dd.content.push({
       console.log("PDFMake - calling downloadPDF()");
       this.downloadPDF();
       loading.dismiss(); // dismiss once loaded
+      this.isPDFDownLoaded = true; // activate complete button
     }, (progress: { loaded: number; total: number }) => {
       // This callback will be used to update the progress bar as PDF is generated 
       console.log("PDFMake - adding to the progress bar...progressValue ", this.progressValue);
@@ -721,5 +735,12 @@ dd.content.push({
   });
   }
 
+public dismissPage(){
+  // Dismiss this modal controller and return data
 
+  this.modalCtyl.dismiss({
+    // no data to pass
+  })
+  
+}
 }// class

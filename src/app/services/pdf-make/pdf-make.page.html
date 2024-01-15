@@ -1,113 +1,20 @@
 <ion-header [translucent]="true">
   <ion-toolbar class="ion-text-center" color="primary">
-    <ion-title>pdfMake</ion-title>
+    <ion-title>Print CPD Events</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding" color="light">
 
 
-  
-  <!--
-  <form (ngSubmit)="generateDynamicPDF()" [formGroup]="myForm">
-    <ion-item>
-      <ion-label>Include Logo Image</ion-label>
-      <ion-checkbox formControlName="showLogo" slot="start"></ion-checkbox>
-
-    </ion-item>
-
-    <ion-item>
-      <ion-label>Include Watermark</ion-label>
-      <ion-checkbox formControlName="showWatermark" slot="end"></ion-checkbox>
-    </ion-item>
-    
-    
-
-
-    <ion-item>
-      <ion-label position="stacked">From</ion-label>
-      <ion-input formControlName="from"></ion-input>
-    </ion-item>
-    
-    <ion-item>
-      <ion-label position="stacked">To</ion-label>
-      <ion-input formControlName="to"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">Text</ion-label>
-      <ion-textarea formControlName="text" rows ="3"></ion-textarea>
-    </ion-item>
-
-
-    <ion-list>
-      <ion-accordion-group >
-        <ion-accordion #myAccordion value="start">
-          <ion-item slot="header">
-            <ion-label>Start Date</ion-label>
-            <ion-note slot="end" id="datetimeValue">{{selectedDate | date: 'dd/MM/yyyy'}}</ion-note>
-          </ion-item>
-          <ion-datetime
-            id="datetime"
-            displayFormat="dd/MM/yyyy"
-            slot="content"
-            presentation="date"
-            min="01-01-1980"
-            max="31-01-2100"
-            
-            [(ngModel)]="selectedDate"
-            name="startDate"
-           
-          ></ion-datetime>
-        </ion-accordion>
-      </ion-accordion-group>
-    </ion-list>
-    
-    <ion-item-divider></ion-item-divider>
-  
-    <ion-list >
-      <ion-accordion-group >
-        <ion-accordion #myAccordion value="start">
-          <ion-item slot="header">
-            <ion-label >End Date</ion-label>
-            <ion-note slot="end" id="datetimeValue">{{selectedEndDate| date: 'dd/MM/yyyy'}}</ion-note>
-          </ion-item>
-          <ion-datetime
-            id="datetime"
-            displayFormat="dd/MM/yyyy"
-            slot="content"
-            presentation="date"
-            min="01-01-1980"
-            max="31-01-2100"
-            
-            [(ngModel)]="selectedEndDate"
-            name="endDate"
-           
-          ></ion-datetime>
-        </ion-accordion>
-      </ion-accordion-group>
-    </ion-list>
-
-    <ion-button expand="full" (click)="generateDynamicPDF()" type="submit">Create PDF</ion-button>
-
-
-    
-  </form>
-
--->
-
   <form #f = "ngForm" (ngSubmit)="generateDynamicPDF(f)" color="light">
     <ion-item>
       <ion-label position = "floating">Title</ion-label>
     </ion-item>
-    
-<!--
-    <ion-item>
-      <ion-label>Include Logo Image</ion-label>
-      <ion-checkbox formControlName="showLogo" slot="start"></ion-checkbox>
-
+ 
+    <ion-item style="height: 200px">
+      <ion-img src="../assets/icon/um_favicon.png" style="width: 100%; height: 100%"></ion-img>
     </ion-item>
-  -->
     <ion-item>
       <ion-label>Include Watermark</ion-label>
       <ion-checkbox name="showWatermarkCheckBoxValue" [(ngModel)]="includeWaterMark" slot="end"></ion-checkbox>
@@ -146,7 +53,7 @@
       </ion-accordion-group>
     </ion-list>
     
-    <ion-item-divider></ion-item-divider>
+    <ion-item-divider *ngIf="!checkBoxAllDates"></ion-item-divider>
       <!--<ion-input required=true [(ngModel)]="uploadEvent.startdate" name = "startdate"></ion-input>-->
     
     <!--End Date Pciker-->
@@ -174,7 +81,7 @@
     </ion-list>
    
 
-    <ion-item-divider></ion-item-divider>
+    <ion-item-divider *ngIf="!checkBoxAllDates"></ion-item-divider>
 
 
 
@@ -190,30 +97,23 @@
     <ion-icon slot="icon-only" name="print"></ion-icon>
   </ion-button>
   </div>
-</form>
 
- 
- 
-  
-  <!--<ion-button (click)="generateDynamicPDF()">Create Dynamicc PDF</ion-button>-->
-  <!--Display photop if user takes one-->
-
-  <!--
-  <ion-progress-bar [value]="progressValue"></ion-progress-bar>
-  -->
 
   <div class="center">
   <img [src]="photoPreview" *ngIf="willTakePhoto">
-
 
   <ion-button class="ion-text-center" *ngIf="willTakePhoto" class= "ion-text-center" (click)="takePicture()" shape="round" fill="outline">
     <ion-icon slot="icon-only" name="camera"></ion-icon>
   </ion-button>
   </div>
+
+  <div class="ion-text-center" >
+    <ion-button *ngIf="isPDFDownLoaded" (click)="dismissPage()" color="success">
+      <ion-icon slot="icon-only" name="stop-circle"></ion-icon>
+    </ion-button>
+  </div>
   <!--
   <ion-button (click)="downloadPDF()" color="secondry" [disabled]="!pdfObj">Save PDF</ion-button>
   -->
-  <ion-footer>
-    
-  </ion-footer>
+</form>
 </ion-content>
