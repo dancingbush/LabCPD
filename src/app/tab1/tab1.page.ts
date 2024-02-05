@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
-import { Chart } from 'chart.js'
+import { Component, OnInit } from '@angular/core';
+import { Chart, ChartData } from 'chart.js'
 import { NgChartsModule } from 'ng2-charts';
 import { AfterViewInit,  ElementRef, ViewChild } from '@angular/core';
+import { DataService } from '../services/dataservice';
+import { privateEncrypt } from 'crypto';
+import { Data } from '@angular/router';
+import { cpdEvent } from '../services/interfaces';
+//import { ChartLegendLabelItem } from 'chart.js';
+import { StorageService } from '../services/storageservice.service';
 
 @Component({
   selector: 'app-tab1',
@@ -9,7 +15,7 @@ import { AfterViewInit,  ElementRef, ViewChild } from '@angular/core';
   styleUrls: ['tab1.page.scss']
 })
 
-export class Tab1Page implements AfterViewInit{
+export class Tab1Page implements AfterViewInit, OnInit{
 
   // this tutoiral file:///Users/callanmooneys/Desktop/HDip%20software%20Dev/CPD%20App/Ionic%205%20Charts%20&%20Graphs%20using%20Chart.js%20Library%20%7C%20by%20Ankit%20Maheshwari%20%7C%20JavaScript%20in%20Plain%20English.webarchive
   // Ionic 5 Charts & Graphs using Chart.js Library
@@ -29,7 +35,53 @@ export class Tab1Page implements AfterViewInit{
   doughnutChart: any;
   lineChart: any;
 
-  constructor() {}
+  // CPD data to display
+  private cpdEvents : cpdEvent[] = [];
+  private cacheCpdEvents : cpdEvent[]=[];
+  private barlabels : [] = [];
+  private barChartData : [] = [];
+  private lineChartLabels: [] = [];
+  private lineChartData : [] = [];
+  
+
+
+  constructor(private dataService : DataService,
+    private storageService : StorageService) {}
+
+
+  ngOnInit(): void {
+    
+    // Get data only if we hvae not alreday saved it loccal in storage in tab3
+    console.log("tab1 charts: ngOnit");
+
+    this.storageService.get('cachedCPDEvents').then((storedData) => {
+      if (storedData) {
+        console.log("tab1 Charts- got cached CPD data from cachedCPDEvenst Key : ", storedData);
+        this.cacheCpdEvents = storedData;
+        this.cpdEvents = storedData;
+      }else {
+        console.log("Tab1 - no stored data for charts so call data service to get remotely.")
+        this.dataService.getallEvents().subscribe(response => {
+          console.log("tab1 charts: Got events from data service : ", response);
+          if (response != null ){
+            this.cpdEvents = response;
+          }else{
+            console.log("tab1 charts: got null response / data : ", response)
+          }
+        })
+      }
+
+    })
+    // get data for charts
+    this.getChartData();
+  }
+
+  async getChartData(){
+    // Gte data for Events array of cpdEvents
+
+    
+
+  }
   // When we try to call our chart to initialize methods in ngOnInit() it shows an error nativeElement of undefined. 
   // So, we need to call all chart methods in ngAfterViewInit() where @ViewChild and @ViewChildren will be resolved.
 

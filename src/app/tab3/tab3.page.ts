@@ -160,26 +160,31 @@ ngAfterViewInit(){
       }else{
      this.searching = true;
       }
+
+
       console.log("tab3 - Home.page: Refresher pull down called- Gettnig all data...");
      
        //Mock up service
        //this.events = this.service.getMockCpdEvents();
 
+       /** why ae we doing this ? 
+        * 
        this.service.getallEvents();
        //console.log("tab3: getAllEvents called form NgOnIt() - Got mock data: " + JSON.stringify(this.events) + " title - "+ this.events[this.events.length-1].description);
         console.log("tab3: getAllEvents- r ");
        
        this.storage['set'](this.cacheTestData, this.events);
+       this.storage['set']('cachedCPDEvents', this.events); // so this key can eb used globally to cpatre caxched data
        //this.nativeStorage.setItem(this.cacheTestData, this.cacheLocalData);
        this.searching = false;
        this.cacheLocalData = this.events;
+
+       */
+
  
        if (event) {
          event.target.complete();
        }
- 
-       
- 
 
 
       // Live remote call
@@ -189,6 +194,7 @@ ngAfterViewInit(){
         if (response != null ){
           this.events = response;
           this.storage['set'](this.cacheTestData, this.events);
+          this.storage['set']('cachedCPDEvents',this.events); // access globally by key 'cachedCPDEvents'
           this.searching = false; //Turn spinner off
           this.cacheLocalData = this.events;
           

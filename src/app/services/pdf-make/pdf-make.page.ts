@@ -17,6 +17,7 @@ import { cpdEvent } from '../interfaces';
 import { read, truncate } from 'fs';
 import { table } from 'console';
 import { ModalController } from '@ionic/angular'; 
+import { AlertController, ToastController} from '@ionic/angular';
 
 (<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
 
@@ -66,7 +67,7 @@ totalCPDPointsFilteredDates = 0;
 totalEventsFilteredDates = 0;
 totalCPDHoursFilteredEvents = 0;
 isPDFDownLoaded : boolean = false;
-
+isAlertOpen = false; //Alert when PDF generated
 
 
 
@@ -75,7 +76,9 @@ isPDFDownLoaded : boolean = false;
     private plt : Platform, private http: HttpClient, 
     private fileOpener : FileOpener,
     private loadingController : LoadingController,
-    private modalCtyl : ModalController) {}
+    private modalCtyl : ModalController,
+    private alertController : AlertController, 
+    private toaster: ToastController) {}
 
   ngOnInit() {
     // Create form to cpature data 
@@ -696,17 +699,17 @@ dd.content.push({
       this.downloadPDF();
       loading.dismiss(); // dismiss once loaded
       this.isPDFDownLoaded = true; // activate complete button
+      this.presentAlert();
     }, (progress: { loaded: number; total: number }) => {
       // This callback will be used to update the progress bar as PDF is generated 
       console.log("PDFMake - adding to the progress bar...progressValue ", this.progressValue);
       this.progressValue = Math.round((progress.loaded / progress.total) * 100);
+
     });
     
+}
 
 
-
-
-  }
 
   async filterCPDEvents() : Promise<cpdEvent[]>{
     /** 
@@ -742,5 +745,30 @@ public dismissPage(){
     // no data to pass
   })
   
+}
+
+
+async  presentAlert(){
+  // Present succes message
+
+  console.log("Presenting alert");
+  /** 
+  const alert = await this.alertController.create({
+    header: "PDF Generated Succesfully!",
+    buttons: ['OK'],
+    cssClass: 'centered-alert'
+  });
+
+  await alert.present();
+*/
+  const toast = await this.toaster.create({
+    message: "Success!!",
+    duration: 1500,
+    position: 'middle',
+    cssClass: 'custom-toast'
+  });
+
+  await toast.present()
+
 }
 }// class
