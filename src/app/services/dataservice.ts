@@ -46,7 +46,7 @@ export class DataService {
   }
 
   public createEvent (newEvent : cpdEvent) : Observable<any>{
-    console.log("Dataservice: create new event for : ",  newEvent.title , " and certifcate image : ", newEvent.certificate) , " and start date : ", newEvent.startdate;
+    console.log("Dataservice: create new event for : ",  newEvent.title , " and certifcate image : ", newEvent.certificate) , " and start date : ", newEvent.startdate, " and categorty: ", newEvent.compentancyCat;
     
     return this.http.post(this.dateBaseURL, newEvent);
 

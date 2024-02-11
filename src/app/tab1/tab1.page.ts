@@ -17,12 +17,15 @@ import { StorageService } from '../services/storageservice.service';
 
 export class Tab1Page implements AfterViewInit, OnInit{
 
-  // this tutoiral file:///Users/callanmooneys/Desktop/HDip%20software%20Dev/CPD%20App/Ionic%205%20Charts%20&%20Graphs%20using%20Chart.js%20Library%20%7C%20by%20Ankit%20Maheshwari%20%7C%20JavaScript%20in%20Plain%20English.webarchive
-  // Ionic 5 Charts & Graphs using Chart.js Library
-//Ankit Maheshwari
-
- // Importing ViewChild. We need @ViewChild decorator to get a reference to the local variable 
-  // that we have added to the canvas element in the HTML template.
+/**
+ * Charts are mnaged here but dipslyed in elemenst in Tab number.
+ * Check if data us drwn form DB first and cached, of not make a new pull
+ * 
+ * this tutoiral file:///Users/callanmooneys/Desktop/HDip%20software%20Dev/CPD%20App/Ionic%205%20Charts%20&%20Graphs%20using%20Chart.js%20Library%20%7C%20by%20Ankit%20Maheshwari%20%7C%20JavaScript%20in%20Plain%20English.webarchive
+ * Ionic 5 Charts & Graphs using Chart.js Library  Ankit Maheshwari
+ * Importing ViewChild. We need @ViewChild decorator to get a reference to the local variable 
+ * that we have added to the canvas element in the HTML template.
+*/
 
   @ViewChild('barCanvas')
   private barCanvas!: ElementRef;
@@ -42,6 +45,7 @@ export class Tab1Page implements AfterViewInit, OnInit{
   private barChartData : [] = [];
   private lineChartLabels: [] = [];
   private lineChartData : [] = [];
+  private sortedCatFrequency : Map<string, number> = new Map();
   
 
 
@@ -52,19 +56,21 @@ export class Tab1Page implements AfterViewInit, OnInit{
   ngOnInit(): void {
     
     // Get data only if we hvae not alreday saved it loccal in storage in tab3
-    console.log("tab1 charts: ngOnit");
-
+    console.log("tab1 charts: ngOnit, looking for cached data, if none will make new request. ");
     this.storageService.get('cachedCPDEvents').then((storedData) => {
       if (storedData) {
         console.log("tab1 Charts- got cached CPD data from cachedCPDEvenst Key : ", storedData);
         this.cacheCpdEvents = storedData;
         this.cpdEvents = storedData;
+        this.sortedCatFrequency = this.sortByCPDPointsAndFrequencyOfEvent();
       }else {
         console.log("Tab1 - no stored data for charts so call data service to get remotely.")
         this.dataService.getallEvents().subscribe(response => {
           console.log("tab1 charts: Got events from data service : ", response);
           if (response != null ){
             this.cpdEvents = response;
+            this.sortedCatFrequency = this.sortByCPDPointsAndFrequencyOfEvent();
+            
           }else{
             console.log("tab1 charts: got null response / data : ", response)
           }
@@ -73,15 +79,19 @@ export class Tab1Page implements AfterViewInit, OnInit{
 
     })
     // get data for charts
-    this.getChartData();
+    //this.getChartData();
   }
 
   async getChartData(){
-    // Gte data for Events array of cpdEvents
+    /**
+     * Start by getting the number sorting the most frequent CPD events 
+     */
+   // this.sortByCPDPointsAndFrequencyOfEvent();
 
-    
-
+  
   }
+
+  
   // When we try to call our chart to initialize methods in ngOnInit() it shows an error nativeElement of undefined. 
   // So, we need to call all chart methods in ngAfterViewInit() where @ViewChild and @ViewChildren will be resolved.
 
@@ -91,10 +101,74 @@ export class Tab1Page implements AfterViewInit, OnInit{
       this.lineChartMethod();
   }
 
+  public sortByCPDPointsAndFrequencyOfEvent () : Map<string, number>{
+    // Sort events by cpdPoints in descending order
+    console.log("tab1- sortbyDPdPoinst and Cats called...cpdEvents size = ", this.cpdEvents.length);
+    this.cpdEvents.sort((a,b) => b.CPDPoints - a.CPDPoints);
+
+    // Count the freq of Competency cat
+    const frequencyMap : Map<string, number> = new Map();
+    for (const event of this.cpdEvents){
+      const { compentancyCat } = event;
+      console.log("tab1 sortFeqCat: counting freqency of compentacy : ", compentancyCat , " from event with COmpetCat: ", event.compentancyCat, " form evet titel: ", event.title);
+      frequencyMap.set(compentancyCat, (frequencyMap.get(compentancyCat) || 0 ) + 1);
+    }
+
+    // Sort the competnecy categories by freq in descending order
+    const sortedFrequency = new Map([...frequencyMap.entries()].sort((a, b) => b[1] - a[1]));
+
+    sortedFrequency.forEach((value, key)=>{
+      console.log("tab1: for each: sortedCPD Freqency key : value pairs: ", `${key} : ${value}`);
+    })
+
+    console.log("tab1 charts - sortedFrequency map size= ", sortedFrequency.size , " - bar chart sorted freq of cat events VALUES: ", sortedFrequency.values());
+
+    return sortedFrequency;
+    }
+
   barChartMethod() {
-    // Now we need to supply a Chart element reference with an object that defines the type of chart we want to use, and the type of data we want to display.
+    /**
+     *  Now we need to supply a Chart element reference with an object that 
+     * defines the type of chart we want to use, and the type of data we want to display.
+     * First get our data sorted according to most common event and the number fo points for same
+    */
+
+   // const sortedFrequency = this.sortByCPDPointsAndFrequencyOfEvent();
+
+    const labels : string[] = [];
+    const data : number[] = [];
+    const backgroundColours : string[]=[];
+    const borderColours : string[] = [];
+
+    // Extract the data from sorted freq map
+    this.sortedCatFrequency.forEach((count, category)=>{
+      console.log("tab1: sorteCat Map: adding category : " + category + " and adding count : " + count);
+      labels.push(category);
+      data.push(count);
+
+      // define custom colors oif needed 
+      backgroundColours.push(`rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},0.2)`);
+        borderColours.push(`rgba(${Math.random() * 255},${Math.random() * 255},${Math.random() * 255},1)`);
+  
+    });
+    
+    
+    
     this.barChart = new Chart(this.barCanvas.nativeElement, {
       type: 'bar',
+ 
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '# of CPD Points',
+          data: data,
+          backgroundColor: backgroundColours,
+          borderColor: borderColours,
+          borderWidth: 1
+      }]
+      },
+      
+/** old
       data: {
         labels: ['BJP', 'INC', 'AAP', 'CPI', 'CPI-M', 'NCP'],
         datasets: [{
@@ -119,6 +193,7 @@ export class Tab1Page implements AfterViewInit, OnInit{
           borderWidth: 1
         }]
       },
+      */
       options: {
         scales: {
           //yAxes: [{

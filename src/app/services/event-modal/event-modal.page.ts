@@ -265,14 +265,17 @@ export class EventModalPage implements OnInit {
 
   onSubmit(form : NgForm) {
     // Return all data form form/html eventmodal
-    console.log("even-modal onSubmit(): Cpd event form submitted with event: " + JSON.stringify(form.value));
+    console.log("even-modal onSubmit(): Cpd event form submitted with event: " + JSON.stringify(form.value) + " Form Category: ", JSON.stringify(form.value.competancyCateogory));
     
     const event : cpdEvent = form.value;
 
-    // Get dates 
-    //event.startdate = new Date(this.selectedDate);
+    // ion-selct cat rtns an array of srings, Access the correct property name: 'competancy Cateogory'
+    const selectedCategories: string[] = form.value['competancy Cateogory'];
+    console.log("Selected Categories:", selectedCategories); // ion-select rtns an array of strings
+    event.compentancyCat = selectedCategories[0];
+   
 
-    console.log("EventModal: date before ots been modified : ", event.startdate, " and end date : ", event.endDate);
+    console.log("EventModal: onSubmit() : compt cat : ", event.compentancyCat , " and date before ots been modified : ", event.startdate, " and end date : ", event.endDate);
    
 
     if (this.editEvent){
@@ -287,7 +290,7 @@ export class EventModalPage implements OnInit {
       });
     }else{
       // New event to add
-      console.log("Event-modal page: Creating a new event: ", event.title, " AND Photo base64 = ", this.base64photo, " and start date : ", event.startdate);
+      console.log("Event-modal page: Creating a new event: ", event.title, " AND Photo base64 = ", this.base64photo, " and start date : ", event.startdate, " and Comptenacy cat = ", event.compentancyCat);
       event.certificate = this.base64photo;
 
       this.service.createEvent(event).subscribe(response => {
