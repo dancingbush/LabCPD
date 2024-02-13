@@ -6,7 +6,17 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+
+
+ <!--Add skleton default text block for loading, skleton text is cutom component-->
+ <ion-list *ngIf="sortedCatFrequency === null; else showContentBlock">
+  <app-skeleton-text></app-skeleton-text>
+</ion-list>
+
+
+<ng-template #showContentBlock>
+
+
 
   <div class="ion-padding">
     <ion-card>
@@ -44,4 +54,5 @@
 
   <!--<app-explore-container name="Tab 1 page"></app-explore-container>
   -->
-  </ion-content>
+
+</ng-template>

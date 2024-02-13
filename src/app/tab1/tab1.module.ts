@@ -9,6 +9,7 @@ import { Tab1PageRoutingModule } from './tab1-routing.module';
 
 import { CircularChartComponent } from '../circular-chart/circular-chart.component';
 import { NgChartsModule } from 'ng2-charts';
+import { ComponentsModule } from '../components/components.module';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { NgChartsModule } from 'ng2-charts';
     FormsModule,
     ExploreContainerComponentModule,
     Tab1PageRoutingModule,
-    NgChartsModule
+    NgChartsModule,
+    ComponentsModule
   ],
   declarations: [Tab1Page, CircularChartComponent]
 })

@@ -63,6 +63,7 @@ export class Tab1Page implements AfterViewInit, OnInit{
         this.cacheCpdEvents = storedData;
         this.cpdEvents = storedData;
         this.sortedCatFrequency = this.sortByCPDPointsAndFrequencyOfEvent();
+        this.loadCharts();
       }else {
         console.log("Tab1 - no stored data for charts so call data service to get remotely.")
         this.dataService.getallEvents().subscribe(response => {
@@ -70,6 +71,7 @@ export class Tab1Page implements AfterViewInit, OnInit{
           if (response != null ){
             this.cpdEvents = response;
             this.sortedCatFrequency = this.sortByCPDPointsAndFrequencyOfEvent();
+            this.loadCharts();
             
           }else{
             console.log("tab1 charts: got null response / data : ", response)
@@ -96,7 +98,16 @@ export class Tab1Page implements AfterViewInit, OnInit{
   // So, we need to call all chart methods in ngAfterViewInit() where @ViewChild and @ViewChildren will be resolved.
 
   ngAfterViewInit(): void {
+    /** remove from here becsue charts render before data is loaded ascynronly in ngOnIt 
       this.barChartMethod();
+      this.dougnutChartMethod();
+      this.lineChartMethod();
+      */
+  }
+
+  public loadCharts(){
+    // Call form ngOnIt when data is loaded first
+    this.barChartMethod();
       this.dougnutChartMethod();
       this.lineChartMethod();
   }
@@ -142,7 +153,7 @@ export class Tab1Page implements AfterViewInit, OnInit{
 
     // Extract the data from sorted freq map
     this.sortedCatFrequency.forEach((count, category)=>{
-      console.log("tab1: sorteCat Map: adding category : " + category + " and adding count : " + count);
+      console.log("tab1: Bar Chart - sorteCat Map: adding category : " + category + " and adding count : " + count);
       labels.push(category);
       data.push(count);
 
@@ -152,6 +163,9 @@ export class Tab1Page implements AfterViewInit, OnInit{
   
     });
     
+    // Print array contenst using separtor ... whihc passes each element to an arg
+    console.log("tab1: Bar Chart: labels array of categoriesy : ", ...labels);
+    console.log("tab1 : Bar Chart: data array contents fro highst CPD points  of categories: ", ...data )
     
     
     this.barChart = new Chart(this.barCanvas.nativeElement, {
