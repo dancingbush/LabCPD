@@ -7,12 +7,16 @@
 </ion-header>
 
 
+<ion-content>
+
 
  <!--Add skleton default text block for loading, skleton text is cutom component-->
  <ion-list *ngIf="sortedCatFrequency === null; else showContentBlock">
   <app-skeleton-text></app-skeleton-text>
 </ion-list>
 
+  <!--use a angular virtual scroll for peromance and lazy loading; https://ionicacademy.com/angular-virtual-scroll-ionic/-->
+  <cdk-virtual-scroll-viewport itemSize="56" minBufferPx="900" maxBufferPx="1400">
 
 <ng-template #showContentBlock>
 
@@ -56,3 +60,5 @@
   -->
 
 </ng-template>
+</cdk-virtual-scroll-viewport>
+</ion-content>

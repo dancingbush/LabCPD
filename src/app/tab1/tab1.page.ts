@@ -45,7 +45,7 @@ export class Tab1Page implements AfterViewInit, OnInit{
   private barChartData : [] = [];
   private lineChartLabels: [] = [];
   private lineChartData : [] = [];
-  private sortedCatFrequency : Map<string, number> = new Map();
+  public sortedCatFrequency : Map<string, number> = new Map();
   
 
 
@@ -80,18 +80,9 @@ export class Tab1Page implements AfterViewInit, OnInit{
       }
 
     })
-    // get data for charts
-    //this.getChartData();
   }
 
-  async getChartData(){
-    /**
-     * Start by getting the number sorting the most frequent CPD events 
-     */
-   // this.sortByCPDPointsAndFrequencyOfEvent();
-
-  
-  }
+ 
 
   
   // When we try to call our chart to initialize methods in ngOnInit() it shows an error nativeElement of undefined. 
@@ -113,7 +104,8 @@ export class Tab1Page implements AfterViewInit, OnInit{
   }
 
   public sortByCPDPointsAndFrequencyOfEvent () : Map<string, number>{
-    // Sort events by cpdPoints in descending order
+    // Sort events by cpdPoints in descending order, for bar chart
+
     console.log("tab1- sortbyDPdPoinst and Cats called...cpdEvents size = ", this.cpdEvents.length);
     this.cpdEvents.sort((a,b) => b.CPDPoints - a.CPDPoints);
 
@@ -142,9 +134,8 @@ export class Tab1Page implements AfterViewInit, OnInit{
      *  Now we need to supply a Chart element reference with an object that 
      * defines the type of chart we want to use, and the type of data we want to display.
      * First get our data sorted according to most common event and the number fo points for same
+     * This method is called from ngOnIt
     */
-
-   // const sortedFrequency = this.sortByCPDPointsAndFrequencyOfEvent();
 
     const labels : string[] = [];
     const data : number[] = [];
@@ -250,13 +241,73 @@ export class Tab1Page implements AfterViewInit, OnInit{
 
 
   lineChartMethod() {
+    /**
+     * plot activity. 
+     * Displaying the number of entries per month over the last 12 montths
+     * 
+     */
+
+    console.log("tab1: creating line chart...")
+
+    // there is an issue when converting the endDate type in bloew code so leats see examine it first
+    this.cpdEvents.forEach((event, index)=>{
+      const endDate = event.endDate;
+      console.log(`tab1 : line chart endDate type ${index + 1}:`, endDate );
+      console.log('Data type of Event date ${index + 1}:', typeof endDate);
+
+    })
+  
+    // Initialize an object to store the count of events per calendar month
+const eventsPerMonth: { [month: string]: number } = {};
+
+// Iterate through each event
+this.cpdEvents.forEach(event => {
+  if (event.endDate !== null){
+  // Extract endDate from each event
+  const endDate: Date = new Date(event.endDate);
+
+  // Calculate the occurrence of endDate per calendar month
+  const monthKey: string = `${endDate.getFullYear()}-${endDate.getMonth() + 1}`; // key format 'YYYY-MM'
+  eventsPerMonth[monthKey] = (eventsPerMonth[monthKey] || 0) + 1; // Increment count for month
+  }
+});
+
+// Organize the data into a format suitable for plotting
+const dataPoints = Object.keys(eventsPerMonth).map(month => {
+  // Split the monthKey into year and month parts
+  const [yearStr, monthIndexStr] = month.split('-');
+  // Create a Date object representing the month
+  const date = new Date(parseInt(yearStr), parseInt(monthIndexStr) - 1); // months are 0-indexed in JavaScript
+  // Format the month name and year
+  const monthName = date.toLocaleString('default',{month:'short'});
+  const year = date.getFullYear().toString().substr(2); // Get last to digots of year
+  
+  // COncatenate month and year for x axis
+  const xAxisLabel = `${monthName}-${year}`;
+
+  // Return the data point with Date object and event count
+
+
+  return { x: xAxisLabel, y: eventsPerMonth[month] };
+});
+    
+
+    console.log("tab1 line chart: got data points array of months and number of events: ", dataPoints);
+
+    // Plot the data on a line chart 
+
+// Step 5: Plot the data on a line chart (using Chart.js as an example)
+const ctx = document.getElementById('lineChart') as HTMLCanvasElement;
+
     this.lineChart = new Chart(this.lineCanvas.nativeElement, {
       type: 'line',
       data: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'November', 'December'],
+        //labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'November', 'December'],
+        //labels : dataPoints.map(dataPoint => dataPoint.x.toLocaleString('default',{month: 'long'})),
+        labels: dataPoints.map(dataPoint => dataPoint.x),
         datasets: [
           {
-            label: 'Sell per week',
+            label: 'Events Per Month',
             fill: false,
             //lineTension: 0.1,
             backgroundColor: 'rgba(75,192,192,0.4)',
@@ -274,7 +325,8 @@ export class Tab1Page implements AfterViewInit, OnInit{
             pointHoverBorderWidth: 2,
             pointRadius: 1,
             pointHitRadius: 10,
-            data: [65, 59, 80, 81, 56, 55, 40, 10, 5, 50, 10, 15],
+            //data: [65, 59, 80, 81, 56, 55, 40, 10, 5, 50, 10, 15],
+            data: dataPoints.map(dataPoint => dataPoint.y),
             spanGaps: false,
 
           }

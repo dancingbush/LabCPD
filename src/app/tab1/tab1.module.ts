@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Tab1Page } from './tab1.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
-
+import {  ScrollingModule } from '@angular/cdk/scrolling';
 import { Tab1PageRoutingModule } from './tab1-routing.module';
 
 import { CircularChartComponent } from '../circular-chart/circular-chart.component';
@@ -19,7 +19,8 @@ import { ComponentsModule } from '../components/components.module';
     ExploreContainerComponentModule,
     Tab1PageRoutingModule,
     NgChartsModule,
-    ComponentsModule
+    ComponentsModule,
+    ScrollingModule
   ],
   declarations: [Tab1Page, CircularChartComponent]
 })
